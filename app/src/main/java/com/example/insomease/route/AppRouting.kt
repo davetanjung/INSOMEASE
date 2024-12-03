@@ -9,12 +9,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.insomease.view.HomeScreen
+import com.example.insomease.view.LoginScreenView
+import com.example.insomease.view.OnBoardingScreen
+import com.example.insomease.view.OnBoardingScreen_2
+import com.example.insomease.view.OnBoardingScreen_3
 import com.example.insomease.view.SplashScreen
 
 enum class listScreen(){
     SplashScreen,
-    HomeScreen
+    OnBoardingScreen,
+    OnBoardingScreen_2,
+    OnBoardingScreen_3,
+    LoginScreen,
+    SignUpScreen,
 }
 
 @Composable
@@ -31,15 +38,28 @@ fun AppRouting(){
 
             composable(route = listScreen.SplashScreen.name) {
                 SplashScreen(onSplashFinish = {
-                    NavController.navigate(listScreen.HomeScreen.name) {
+                    NavController.navigate(listScreen.OnBoardingScreen.name) {
                         popUpTo(listScreen.SplashScreen.name) { inclusive = true } // Clear the back stack to prevent going back to Splash
                     }
                 })
             }
 
-            composable(route = listScreen.HomeScreen.name) {
-                HomeScreen(navController = NavController)
+            composable(route = listScreen.OnBoardingScreen.name) {
+                OnBoardingScreen(navController = NavController)
             }
+
+            composable(route = listScreen.OnBoardingScreen_2.name) {
+                OnBoardingScreen_2(navController = NavController)
+            }
+
+            composable(route = listScreen.OnBoardingScreen_3.name) {
+                OnBoardingScreen_3(navController = NavController)
+            }
+
+            composable(route = listScreen.LoginScreen.name) {
+                LoginScreenView(navController = NavController)
+            }
+
 
 //            ../RestaurantDetail/id
 //            composable(

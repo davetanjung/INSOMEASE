@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.insomease.route.AppRouting
 import com.example.insomease.ui.theme.INSOMEASETheme
+import com.example.insomease.view.LoginScreenView
 import com.example.insomease.view.SplashScreen
 
 class MainActivity : ComponentActivity() {
