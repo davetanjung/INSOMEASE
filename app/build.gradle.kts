@@ -36,14 +36,31 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
 dependencies {
 
+    implementation("androidx.compose.foundation:foundation:<compose_version>")
+    implementation("androidx.compose.material:material:<compose_version>")
+    implementation("com.tbuonomo:dotsindicator:4.2")
+    implementation ("androidx.viewpager2:viewpager2:1.0.0")
+
     implementation("androidx.core:core-splashscreen:1.0.0")
-    implementation("androidx.navigation:navigation-compose:2.6.0")
-    implementation ("com.google.accompanist:accompanist-navigation-animation:0.36.0")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+
+    implementation("androidx.navigation:navigation-compose:2.8.2")
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.36.0")
 
 
     implementation(libs.androidx.core.ktx)
@@ -54,6 +71,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.animation.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.viewpager2.widget.ViewPager2
 import com.example.insomease.route.AppRouting
 import com.example.insomease.ui.theme.INSOMEASETheme
 import com.example.insomease.view.LoginScreenView

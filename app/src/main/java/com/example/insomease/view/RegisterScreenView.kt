@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,17 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -51,9 +43,10 @@ import com.example.insomease.R
 import com.example.insomease.route.listScreen
 
 @Composable
-fun LoginScreenView(
+fun RegisterScreenView(
     navController: NavController? = null
 ) {
+    val username = remember { mutableStateOf("") }
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val isPasswordVisible = remember { mutableStateOf(false) }
@@ -75,6 +68,36 @@ fun LoginScreenView(
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center
         ) {
+            Text(
+                text = "Username",
+                color = Color.White,
+                fontFamily = FontFamily(Font(R.font.poppins)),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            OutlinedTextField(
+                value = username.value,
+                onValueChange = { username.value = it },
+                modifier = Modifier
+                    .padding(top = 8.dp, bottom = 12.dp)
+                    .fillMaxWidth()
+                    .height(54.dp)
+                    .border(
+                        width = 1.dp,
+                        color = Color(0xFFAAAAE5),
+                        shape = RoundedCornerShape(25.dp)
+                    ),
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = Color.White,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black
+                ),
+                shape = RoundedCornerShape(25.dp),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Email
+                )
+            )
             Text(
                 text = "Email",
                 color = Color.White,
@@ -138,7 +161,8 @@ fun LoginScreenView(
                 ),
                 trailingIcon = {
                     Image(
-                        painter = if (isPasswordVisible.value) painterResource(R.drawable.visible_password) else painterResource(R.drawable.invisible_password),
+                        painter = if (isPasswordVisible.value) painterResource(R.drawable.visible_password) else painterResource(
+                            R.drawable.invisible_password),
                         contentDescription = "Toggle Password Visibility",
                         modifier = Modifier
                             .padding(end = 16.dp)
@@ -149,20 +173,9 @@ fun LoginScreenView(
                     )
                 }
             )
-            Text(
-                text = "Forgot Password?",
-                color = Color(0xFFACACE7),
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.End,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp)
-            )
             Button(
                 onClick = {
-//                    navController?.navigate(listScreen.OnBoardingScreen_2.name)
+                    navController?.navigate(listScreen.LoginScreen.name)
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF514388)
@@ -171,7 +184,7 @@ fun LoginScreenView(
                     .padding(vertical = 30.dp)
             ) {
                 Text(
-                    text = "Login",
+                    text = "Sign Up",
                     fontFamily = FontFamily(Font(R.font.poppins)),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
@@ -184,10 +197,10 @@ fun LoginScreenView(
             }
             Text(
                 text = buildAnnotatedString {
-                    append("Don't have an account? ")
+                    append("Already have an account? ")
 
                     withStyle(style = SpanStyle(color = Color(0xFFACACE7))) {
-                        append("Sign Up")
+                        append("Log In")
                     }
                 },
                 fontFamily = FontFamily(Font(R.font.poppins)),
@@ -198,8 +211,8 @@ fun LoginScreenView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                    navController?.navigate(listScreen.SignUpScreen.name)
-                }
+//                    navController?.navigate("sign_up_screen")
+                    }
             )
         }
     }
@@ -208,6 +221,6 @@ fun LoginScreenView(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun LoginScreenPreview() {
-    LoginScreenView()
+fun RegisterScreenPreview() {
+    RegisterScreenView()
 }
