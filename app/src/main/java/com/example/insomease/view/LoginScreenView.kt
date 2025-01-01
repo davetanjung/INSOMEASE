@@ -57,6 +57,7 @@ fun LoginScreenView(
     navController: NavController? = null,
     authenticationViewModel: AuthenticationViewModel = viewModel()
 ) {
+
     val emailInput = authenticationViewModel.emailInput
     val passwordInput = authenticationViewModel.passwordInput
     val isPasswordVisible = authenticationViewModel.isPasswordVisible
@@ -167,7 +168,7 @@ fun LoginScreenView(
             Button(
                 onClick = {
                     navController?.let {
-                        authenticationViewModel.loginUser(it)
+                        authenticationViewModel.loginUser(navController)
                     }
                 },
                 enabled = isButtonEnabled,

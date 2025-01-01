@@ -21,6 +21,7 @@ import com.example.insomease.models.UserResponse
 import com.example.insomease.repositories.AuthenticationRepository
 import com.example.insomease.repositories.NetworkUserRepository
 import com.example.insomease.repositories.UserRepository
+import com.example.insomease.route.listScreen
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -128,9 +129,7 @@ class AuthenticationViewModel(
                     val userData = response.body()
                     userRepository.saveUserToken(userData?.data?.token.orEmpty())
                     userRepository.saveUsername(userData?.data?.username.orEmpty())
-                    navController.navigate("home") {
-                        popUpTo("login") { inclusive = true }
-                    }
+                    navController?.navigate(listScreen.HomeScreen.name)
                 } else {
                     errorMessage = response.message()
                 }
@@ -172,14 +171,25 @@ class AuthenticationViewModel(
                     userRepository.saveUserToken(userData?.data?.token.orEmpty())
                     userRepository.saveUsername(userData?.data?.username.orEmpty())
                     // Navigate to the Home screen or Login page upon successful registration
-                    navController.navigate("home") {
-                        popUpTo("register") { inclusive = true }
-                    }
+                    navController?.navigate(listScreen.LoginScreen.name)
                 } else {
                     errorMessage = response.message()
                 }
             } catch (e: Exception) {
                 errorMessage = "Registration failed: ${e.localizedMessage}"
+            }
+        }
+    }
+    companion object{
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as LunaireApplication)
+                val authenticationRepository = application.container.authenticationRepository
+                val userRepository = application.container.userRepository
+                AuthenticationViewModel(
+                    authenticationRepository,
+                    userRepository
+                )
             }
         }
     }

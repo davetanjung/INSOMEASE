@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.insomease.view.HomePage
 import com.example.insomease.view.LoginScreenView
 import com.example.insomease.view.OnBoardingScreen
 import com.example.insomease.view.OnBoardingScreen_2
@@ -32,11 +33,12 @@ enum class listScreen(){
     OnBoardingScreen_3,
     LoginScreen,
     SignUpScreen,
+    HomeScreen
 }
 
 @Composable
 fun AppRouting(
-    authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.factory)
+    authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory)
 ){
 
     val NavController = rememberNavController()
@@ -125,11 +127,51 @@ fun AppRouting(
                     )
                 },
             ) {
-                LoginScreenView(navController = NavController)
+                LoginScreenView(
+                    navController = NavController,
+                    authenticationViewModel
+                )
             }
 
-            composable(route = listScreen.SignUpScreen.name) {
-                RegisterScreenView(navController = NavController)
+            composable(
+                route = listScreen.HomeScreen.name,
+                enterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> fullWidth }, // Starts from the right
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                },
+                exitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -fullWidth }, // Exits to the left
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                },
+            ) {
+                HomePage(
+                    navController = NavController
+                )
+            }
+
+            composable(
+                route = listScreen.SignUpScreen.name,
+                enterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> fullWidth }, // Starts from the right
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                },
+                exitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -fullWidth }, // Exits to the left
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                },
+            ) {
+                RegisterScreenView(
+                    navController = NavController,
+                    authenticationViewModel
+                )
             }
 
 

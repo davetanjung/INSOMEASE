@@ -15,6 +15,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -38,18 +40,23 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.insomease.R
 import com.example.insomease.route.listScreen
+import com.example.insomease.viewModels.AuthenticationViewModel
 
 @Composable
 fun RegisterScreenView(
-    navController: NavController? = null
+    navController: NavController? = null,
+    authenticationViewModel: AuthenticationViewModel = viewModel()
 ) {
-    val username = remember { mutableStateOf("") }
-    val email = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
-    val isPasswordVisible = remember { mutableStateOf(false) }
+    val username = remember { mutableStateOf(authenticationViewModel.usernameInput) }
+    val email = remember { mutableStateOf(authenticationViewModel.emailInput) }
+    val password = remember { mutableStateOf(authenticationViewModel.passwordInput) }
+    val confirmPassword = remember { mutableStateOf(authenticationViewModel.confirmPasswordInput) }
+    val isPasswordVisible = remember { mutableStateOf(authenticationViewModel.isPasswordVisible) }
+    val isConfirmPasswordVisible = remember { mutableStateOf(authenticationViewModel.isConfirmPasswordVisible) }
 
     Box(
         modifier = Modifier
@@ -77,27 +84,20 @@ fun RegisterScreenView(
             )
             OutlinedTextField(
                 value = username.value,
-                onValueChange = { username.value = it },
+                onValueChange = {
+                    username.value = it
+                    authenticationViewModel.onUsernameChange(it)
+                },
                 modifier = Modifier
                     .padding(top = 8.dp, bottom = 12.dp)
                     .fillMaxWidth()
-                    .height(54.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Color(0xFFAAAAE5),
-                        shape = RoundedCornerShape(25.dp)
-                    ),
+                    .height(54.dp),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
                     focusedContainerColor = Color.White,
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black
-                ),
-                shape = RoundedCornerShape(25.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Email
                 )
             )
+
             Text(
                 text = "Email",
                 color = Color.White,
@@ -107,26 +107,17 @@ fun RegisterScreenView(
             )
             OutlinedTextField(
                 value = email.value,
-                onValueChange = { email.value = it },
-//                placeholder = { Text(text = "Enter your email") },
+                onValueChange = {
+                    email.value = it
+                    authenticationViewModel.onEmailChange(it)
+                },
                 modifier = Modifier
                     .padding(top = 8.dp, bottom = 12.dp)
                     .fillMaxWidth()
-                    .height(54.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Color(0xFFAAAAE5),
-                        shape = RoundedCornerShape(25.dp)
-                    ),
+                    .height(54.dp),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
                     focusedContainerColor = Color.White,
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black
-                ),
-                shape = RoundedCornerShape(25.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Email
                 )
             )
 
@@ -139,81 +130,113 @@ fun RegisterScreenView(
             )
             OutlinedTextField(
                 value = password.value,
-                onValueChange = { password.value = it },
-//                placeholder = { Text(text = "Enter your password") },
-                modifier = Modifier
-                    .padding(top = 8.dp, bottom = 12.dp)
-                    .fillMaxWidth()
-                    .height(54.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Color(0xFFAAAAE5),
-                        shape = RoundedCornerShape(25.dp)
-                    ),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White
-                ),
-                shape = RoundedCornerShape(25.dp),
+                onValueChange = {
+                    password.value = it
+                    authenticationViewModel.onPasswordChange(it)
+                },
                 visualTransformation = if (isPasswordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = if (isPasswordVisible.value) KeyboardType.Text else KeyboardType.Password
                 ),
                 trailingIcon = {
-                    Image(
-                        painter = if (isPasswordVisible.value) painterResource(R.drawable.visible_password) else painterResource(
-                            R.drawable.invisible_password),
-                        contentDescription = "Toggle Password Visibility",
-                        modifier = Modifier
-                            .padding(end = 16.dp)
-                            .size(30.dp)
-                            .clickable {
-                                isPasswordVisible.value = !isPasswordVisible.value
-                            }
-                    )
-                }
+                    IconButton(
+                        onClick = {
+                            isPasswordVisible.value = !isPasswordVisible.value
+                            authenticationViewModel.togglePasswordVisibility()
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = if (isPasswordVisible.value) R.drawable.visible_password else R.drawable.invisible_password),
+                            contentDescription = "Toggle Password Visibility"
+                        )
+                    }
+                },
+                modifier = Modifier
+                    .padding(top = 8.dp, bottom = 12.dp)
+                    .fillMaxWidth()
+                    .height(54.dp),
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = Color.White,
+                )
             )
+
+            Text(
+                text = "Confirm Password",
+                color = Color.White,
+                fontFamily = FontFamily(Font(R.font.poppins)),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            OutlinedTextField(
+                value = confirmPassword.value,
+                onValueChange = {
+                    confirmPassword.value = it
+                    authenticationViewModel.onConfirmPasswordChange(it)
+                },
+                visualTransformation = if (isConfirmPasswordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = if (isConfirmPasswordVisible.value) KeyboardType.Text else KeyboardType.Password
+                ),
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value
+                            authenticationViewModel.toggleConfirmPasswordVisibility()
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = if (isConfirmPasswordVisible.value) R.drawable.visible_password else R.drawable.invisible_password),
+                            contentDescription = "Toggle Confirm Password Visibility"
+                        )
+                    }
+                },
+                modifier = Modifier
+                    .padding(top = 8.dp, bottom = 12.dp)
+                    .fillMaxWidth()
+                    .height(54.dp),
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = Color.White,
+                )
+            )
+
             Button(
                 onClick = {
-                    navController?.navigate(listScreen.LoginScreen.name)
+                    navController?.let {
+                        authenticationViewModel.registerUser(
+                            navController,
+                            name = username.value,
+                            email = email.value,
+                            password = password.value
+                        )
+                    }
                 },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF514388)
-                ),
+                enabled = authenticationViewModel.isButtonEnabled,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388)),
                 modifier = Modifier
                     .padding(vertical = 30.dp)
             ) {
                 Text(
                     text = "Sign Up",
-                    fontFamily = FontFamily(Font(R.font.poppins)),
+                    color = Color.White,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
+                    textAlign = TextAlign.Center
                 )
             }
-            Text(
-                text = buildAnnotatedString {
-                    append("Already have an account? ")
 
-                    withStyle(style = SpanStyle(color = Color(0xFFACACE7))) {
-                        append("Log In")
-                    }
-                },
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                fontSize = 15.sp,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-//                    navController?.navigate("sign_up_screen")
-                    }
-            )
+            // Show error message if exists
+            if (authenticationViewModel.errorMessage.isNotEmpty()) {
+                Text(
+                    text = authenticationViewModel.errorMessage,
+                    color = Color.Red,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
