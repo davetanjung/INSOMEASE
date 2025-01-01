@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,6 +23,7 @@ import com.example.insomease.view.OnBoardingScreen_3
 import com.example.insomease.view.RegisterScreenPreview
 import com.example.insomease.view.RegisterScreenView
 import com.example.insomease.view.SplashScreen
+import com.example.insomease.viewModels.AuthenticationViewModel
 
 enum class listScreen(){
     SplashScreen,
@@ -33,7 +35,9 @@ enum class listScreen(){
 }
 
 @Composable
-fun AppRouting(){
+fun AppRouting(
+    authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.factory)
+){
 
     val NavController = rememberNavController()
 

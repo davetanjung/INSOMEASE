@@ -49,14 +49,19 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.insomease.R
 import com.example.insomease.route.listScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.insomease.viewModels.AuthenticationViewModel
 
 @Composable
 fun LoginScreenView(
-    navController: NavController? = null
+    navController: NavController? = null,
+    authenticationViewModel: AuthenticationViewModel = viewModel()
 ) {
-    val email = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
-    val isPasswordVisible = remember { mutableStateOf(false) }
+    val emailInput = authenticationViewModel.emailInput
+    val passwordInput = authenticationViewModel.passwordInput
+    val isPasswordVisible = authenticationViewModel.isPasswordVisible
+    val errorMessage = authenticationViewModel.errorMessage
+    val isButtonEnabled = authenticationViewModel.isButtonEnabled
 
     Box(
         modifier = Modifier
@@ -65,8 +70,7 @@ fun LoginScreenView(
         Image(
             painter = painterResource(R.drawable.main_page_bg),
             contentDescription = "Background Image",
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
         Column(
@@ -75,6 +79,7 @@ fun LoginScreenView(
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center
         ) {
+            // Email Input
             Text(
                 text = "Email",
                 color = Color.White,
@@ -83,41 +88,10 @@ fun LoginScreenView(
                 fontWeight = FontWeight.Bold,
             )
             OutlinedTextField(
-                value = email.value,
-                onValueChange = { email.value = it },
-//                placeholder = { Text(text = "Enter your email") },
-                modifier = Modifier
-                    .padding(top = 8.dp, bottom = 12.dp)
-                    .fillMaxWidth()
-                    .height(54.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Color(0xFFAAAAE5),
-                        shape = RoundedCornerShape(25.dp)
-                    ),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White,
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black
-                ),
-                shape = RoundedCornerShape(25.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Email
-                )
-            )
-
-            Text(
-                text = "Password",
-                color = Color.White,
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            OutlinedTextField(
-                value = password.value,
-                onValueChange = { password.value = it },
-//                placeholder = { Text(text = "Enter your password") },
+                value = emailInput,
+                onValueChange = {
+                    authenticationViewModel.onEmailChange(it)
+                },
                 modifier = Modifier
                     .padding(top = 8.dp, bottom = 12.dp)
                     .fillMaxWidth()
@@ -132,43 +106,76 @@ fun LoginScreenView(
                     focusedContainerColor = Color.White
                 ),
                 shape = RoundedCornerShape(25.dp),
-                visualTransformation = if (isPasswordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = if (isPasswordVisible.value) KeyboardType.Text else KeyboardType.Password
+                    keyboardType = KeyboardType.Email
+                )
+            )
+
+            // Password Input
+            Text(
+                text = "Password",
+                color = Color.White,
+                fontFamily = FontFamily(Font(R.font.poppins)),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            OutlinedTextField(
+                value = passwordInput,
+                onValueChange = {
+                    authenticationViewModel.onPasswordChange(it)
+                },
+                modifier = Modifier
+                    .padding(top = 8.dp, bottom = 12.dp)
+                    .fillMaxWidth()
+                    .height(54.dp)
+                    .border(
+                        width = 1.dp,
+                        color = Color(0xFFAAAAE5),
+                        shape = RoundedCornerShape(25.dp)
+                    ),
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = Color.White
+                ),
+                shape = RoundedCornerShape(25.dp),
+                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Password
                 ),
                 trailingIcon = {
-                    Image(
-                        painter = if (isPasswordVisible.value) painterResource(R.drawable.visible_password) else painterResource(R.drawable.invisible_password),
+                    Icon(
+                        painter = if (isPasswordVisible) painterResource(R.drawable.visible_password) else painterResource(R.drawable.invisible_password),
                         contentDescription = "Toggle Password Visibility",
-                        modifier = Modifier
-                            .padding(end = 16.dp)
-                            .size(30.dp)
-                            .clickable {
-                                isPasswordVisible.value = !isPasswordVisible.value
-                            }
+                        modifier = Modifier.clickable {
+                            authenticationViewModel.togglePasswordVisibility()
+                        }
                     )
                 }
             )
-            Text(
-                text = "Forgot Password?",
-                color = Color(0xFFACACE7),
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.End,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp)
-            )
+
+            // Error Message
+            if (errorMessage.isNotEmpty()) {
+                Text(
+                    text = errorMessage,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+
+            // Login Button
             Button(
                 onClick = {
-//                    navController?.navigate(listScreen.OnBoardingScreen_2.name)
+                    navController?.let {
+                        authenticationViewModel.loginUser(it)
+                    }
                 },
+                enabled = isButtonEnabled,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF514388)
+                    containerColor = Color(0xFF514388),
+                    disabledContainerColor = Color.Gray
                 ),
-                modifier = Modifier
-                    .padding(vertical = 30.dp)
+                modifier = Modifier.padding(vertical = 30.dp)
             ) {
                 Text(
                     text = "Login",
@@ -176,16 +183,14 @@ fun LoginScreenView(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
+
+            // Signup Text
             Text(
                 text = buildAnnotatedString {
                     append("Don't have an account? ")
-
                     withStyle(style = SpanStyle(color = Color(0xFFACACE7))) {
                         append("Sign Up")
                     }
@@ -198,12 +203,13 @@ fun LoginScreenView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                    navController?.navigate(listScreen.SignUpScreen.name)
-                }
+                        navController?.navigate(listScreen.SignUpScreen.name)
+                    }
             )
         }
     }
 }
+
 
 
 @Preview(showBackground = true, showSystemUi = true)
