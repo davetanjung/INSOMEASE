@@ -25,6 +25,7 @@ import com.example.insomease.view.RegisterScreenPreview
 import com.example.insomease.view.RegisterScreenView
 import com.example.insomease.view.SplashScreen
 import com.example.insomease.viewModels.AuthenticationViewModel
+import com.example.insomease.viewModels.HomePageViewModel
 
 enum class listScreen(){
     SplashScreen,
@@ -38,7 +39,8 @@ enum class listScreen(){
 
 @Composable
 fun AppRouting(
-    authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory)
+    authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
+    homePageViewModel: HomePageViewModel = viewModel(factory = HomePageViewModel.Factory)
 ){
 
     val NavController = rememberNavController()
@@ -149,7 +151,8 @@ fun AppRouting(
                 },
             ) {
                 HomePage(
-                    navController = NavController
+                    navController = NavController,
+                    homePageViewModel
                 )
             }
 

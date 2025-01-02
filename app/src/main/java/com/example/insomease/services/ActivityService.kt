@@ -5,6 +5,7 @@ import com.example.insomease.models.ActivityRequest
 import com.example.insomease.models.GeneralResponseModel
 import com.example.insomease.models.GetAllActivityResponse
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -15,7 +16,7 @@ import retrofit2.http.Path
 
 interface ActivityAPIService {
     @GET("api/activity")
-    fun getAllActivity(@Header("X-API-TOKEN") token: String): Call<GetAllActivityResponse>
+    suspend fun getAllActivity(@Header("X-API-TOKEN") token: String): Response<GetAllActivityResponse>
 
     @POST("api/activity")
     fun createActivity(

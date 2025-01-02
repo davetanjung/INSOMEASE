@@ -51,6 +51,7 @@ fun RegisterScreenView(
     navController: NavController? = null,
     authenticationViewModel: AuthenticationViewModel = viewModel()
 ) {
+
     val username = remember { mutableStateOf(authenticationViewModel.usernameInput) }
     val email = remember { mutableStateOf(authenticationViewModel.emailInput) }
     val password = remember { mutableStateOf(authenticationViewModel.passwordInput) }

@@ -5,9 +5,10 @@ import com.example.insomease.models.GetAllActivityResponse
 import com.example.insomease.models.ActivityRequest
 import com.example.insomease.services.ActivityAPIService
 import retrofit2.Call
+import retrofit2.Response
 
 interface ActivityRepository {
-    fun getAllActivities(token: String): Call<GetAllActivityResponse>
+    suspend fun getAllActivities(token: String): Response<GetAllActivityResponse>
 
     fun createActivity(
         token: String,
@@ -36,7 +37,7 @@ class NetworkActivityRepository(
 ): ActivityRepository {
 
     // This method gets all activities
-    override fun getAllActivities(token: String): Call<GetAllActivityResponse> {
+    override suspend fun getAllActivities(token: String): Response<GetAllActivityResponse> {
         return activityAPIService.getAllActivity(token)
     }
 

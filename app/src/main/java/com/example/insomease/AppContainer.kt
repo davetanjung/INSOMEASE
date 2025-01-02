@@ -5,10 +5,13 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.insomease.repositories.ActivityRepository
 import com.example.insomease.repositories.AuthenticationRepository
+import com.example.insomease.repositories.NetworkActivityRepository
 import com.example.insomease.repositories.NetworkAuthenticationRepository
 import com.example.insomease.repositories.NetworkUserRepository
 import com.example.insomease.repositories.UserRepository
+import com.example.insomease.services.ActivityAPIService
 //import com.example.todolistapp.repositories.NetworkTodoRepository
 //import com.example.todolistapp.repositories.NetworkUserRepository
 //import com.example.todolistapp.repositories.TodoRepository
@@ -28,7 +31,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 interface AppContainer {
     val authenticationRepository: AuthenticationRepository
     val userRepository: UserRepository
-//    val todoRepository: TodoRepository
+    val activityRepository: ActivityRepository
 }
 
 class DefaultAppContainer(
@@ -50,6 +53,11 @@ class DefaultAppContainer(
         retrofit.create(UserAPIService::class.java)
     }
 
+    private val activityAPIService: ActivityAPIService by lazy { // Add this service
+        val retrofit = initRetrofit()
+        retrofit.create(ActivityAPIService::class.java)
+    }
+
     // REPOSITORY INIT
     // Passing in the required objects is called dependency injection (DI). It is also known as inversion of control.
     override val authenticationRepository: AuthenticationRepository by lazy {
@@ -60,6 +68,10 @@ class DefaultAppContainer(
             userAPIService = userAPIService,
             userDataStore = userDataStore
         )
+    }
+
+    override val activityRepository: ActivityRepository by lazy {
+        NetworkActivityRepository(activityAPIService)
     }
 
     private fun initRetrofit(): Retrofit {
