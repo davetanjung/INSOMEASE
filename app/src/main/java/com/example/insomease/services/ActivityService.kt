@@ -36,7 +36,7 @@ interface ActivityAPIService {
         @Header("X-API-TOKEN") token: String,
         @Path("id") id: Int,
         @Body activityRequest: ActivityRequest
-    ): Call<GeneralResponseModel>
+    ): Call<ActivityRequest>
 
     @DELETE("api/activity/{id}")
     fun deleteActivity(

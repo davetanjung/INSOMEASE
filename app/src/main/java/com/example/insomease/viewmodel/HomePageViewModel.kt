@@ -1,6 +1,8 @@
 package com.example.insomease.viewModels
 
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -9,7 +11,9 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.insomease.LunaireApplication
 import com.example.insomease.models.ActivityModel
+import com.example.insomease.models.ActivityRequest
 import com.example.insomease.models.ActivityUserModel
+import com.example.insomease.models.GeneralResponseModel
 import com.example.insomease.repositories.ActivityRepository
 import com.example.insomease.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +23,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class HomePageViewModel(
     private val userRepository: UserRepository,
@@ -39,6 +46,15 @@ class HomePageViewModel(
             return _activityUserModel.asStateFlow()
         }
 
+    private val _createActivityResponse = mutableStateOf<GeneralResponseModel?>(null)
+    val createActivityResponse = _createActivityResponse
+
+    private val _errorState = mutableStateOf<String?>(null)
+    val errorState = _errorState
+
+    private val _showPopup = mutableStateOf(false)
+    val showPopup: State<Boolean> = _showPopup
+
 
     val token: StateFlow<String> = userRepository.currentUserToken
         .map { it.ifBlank { "Guest" } }
@@ -55,6 +71,15 @@ class HomePageViewModel(
             started = SharingStarted.Eagerly,
             initialValue = "Loading..."
         )
+
+    fun togglePopup() {
+        _showPopup.value = !_showPopup.value
+    }
+
+    // To close the popup directly (can be called when a cancel or close action occurs)
+    fun closePopup() {
+        _showPopup.value = false
+    }
 
     fun fetchActivities(token: String, id: Int) {
         viewModelScope.launch {
@@ -81,7 +106,55 @@ class HomePageViewModel(
         }
     }
 
+    fun createActivity(
+        token: String,
+        name: String,
+        start_time: String,
+        end_time: String,
+        date: String,
+        categoryId: Int,
+        userId: Int
+    ){
+        val activityRequest = ActivityRequest(
+            name = name,
+            start_time = start_time,
+            end_time = end_time,
+            date = date,
+            categoryId = categoryId,
+            userId = userId
+        )
 
+        viewModelScope.launch {
+            activityRepository.createActivity(
+                token,
+                activityRequest.name,
+                activityRequest.start_time,
+                activityRequest.end_time,
+                activityRequest.date,
+                activityRequest.categoryId,
+                activityRequest.userId
+            ).enqueue(object : Callback<GeneralResponseModel> {
+                override fun onResponse(
+                    call: Call<GeneralResponseModel>,
+                    response: Response<GeneralResponseModel>
+                ) {
+                    if (response.isSuccessful) {
+                        // Handle success
+                        _createActivityResponse.value = response.body()
+                    } else {
+
+                        _errorState.value = "Error: ${response.code()}"
+                        Log.e("CreateActivityViewModel", "Error: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(p0: Call<GeneralResponseModel>, p1: Throwable) {
+                    TODO("Not yet implemented")
+                }
+
+            })
+        }
+    }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {

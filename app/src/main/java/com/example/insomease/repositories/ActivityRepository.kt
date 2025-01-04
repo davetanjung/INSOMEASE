@@ -29,7 +29,7 @@ interface ActivityRepository {
         start_time: String,
         end_time: String,
         date: String
-    ): Call<GeneralResponseModel>
+    ): Call<ActivityRequest>
 
     fun deleteActivity(token: String, activityId: Int): Call<GeneralResponseModel>
 }
@@ -79,7 +79,7 @@ class NetworkActivityRepository(
         start_time: String,
         end_time: String,
         date: String
-    ): Call<GeneralResponseModel> {
+    ): Call<ActivityRequest> {
         val activityRequest = ActivityRequest(
             title,
             start_time,

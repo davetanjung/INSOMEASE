@@ -61,6 +61,7 @@ fun HomePage(
 ) {
     val username by homePageViewModel.username.collectAsState()
     val token by homePageViewModel.token.collectAsState()
+    val showPopup by homePageViewModel.showPopup
 
     LaunchedEffect(Unit) {
         homePageViewModel.fetchActivities(token, userId)
@@ -96,6 +97,21 @@ fun HomePage(
                         homePageViewModel = homePageViewModel,
                         navController = navController
                     )
+                    Button(
+                        onClick = {
+                            homePageViewModel.togglePopup()
+                        },
+                        modifier = Modifier.align(Alignment.End),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388))
+                    ) {
+                        Text(
+                            text = "Add New Activity",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    
                 }
             }
             BottomNavigationBar(
