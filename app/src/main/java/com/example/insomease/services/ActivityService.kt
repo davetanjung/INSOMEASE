@@ -3,6 +3,7 @@ package com.example.insomease.services
 import com.example.insomease.models.ActivityModel
 import com.example.insomease.models.ActivityRequest
 import com.example.insomease.models.GeneralResponseModel
+import com.example.insomease.models.GetActivityResponse
 import com.example.insomease.models.GetAllActivityResponse
 import retrofit2.Call
 import retrofit2.Response
@@ -17,6 +18,12 @@ import retrofit2.http.Path
 interface ActivityAPIService {
     @GET("api/activity")
     suspend fun getAllActivity(@Header("X-API-TOKEN") token: String): Response<GetAllActivityResponse>
+
+    @GET("api/activity/{userId}")
+    suspend fun getUserActivities(
+        @Header("X-API-TOKEN") token: String,
+        @Path("userId") id: Int
+    ): Response<GetActivityResponse>
 
     @POST("api/activity")
     fun createActivity(

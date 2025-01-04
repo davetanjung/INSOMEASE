@@ -12,7 +12,7 @@ data class GetAllActivityResponse(
 )
 
 data class GetActivityResponse(
-    val data: ActivityModel
+    val data: List<ActivityUserModel>
 )
 
 
@@ -25,6 +25,17 @@ data class ActivityModel(
 
     @SerializedName("user_id")
     val userId: Int = 0,
+
+    @SerializedName("category_id")
+    val categoryId: Int = 0
+)
+
+data class ActivityUserModel (
+    val id: Int = 0,
+    val name: String = "",
+    val start_time: String = "",
+    val end_time: String = "",
+    val date: String = "",
 
     @SerializedName("category_id")
     val categoryId: Int = 0

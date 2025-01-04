@@ -1,38 +1,26 @@
 package com.example.insomease.viewModels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import com.example.insomease.R
 import com.example.insomease.LunaireApplication
 import com.example.insomease.models.UserResponse
 import com.example.insomease.repositories.AuthenticationRepository
-import com.example.insomease.repositories.NetworkUserRepository
 import com.example.insomease.repositories.UserRepository
 import com.example.insomease.route.listScreen
-import com.google.gson.Gson
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -127,9 +115,10 @@ class AuthenticationViewModel(
 
                 if (response.isSuccessful) {
                     val userData = response.body()
+                    val userId = userData?.data?.id ?: 0
                     userRepository.saveUserToken(userData?.data?.token.orEmpty())
                     userRepository.saveUsername(userData?.data?.username.orEmpty())
-                    navController?.navigate(listScreen.HomeScreen.name)
+                    navController.navigate("${listScreen.HomeScreen.name}/$userId")
                 } else {
                     errorMessage = response.message()
                 }
@@ -145,7 +134,6 @@ class AuthenticationViewModel(
         viewModelScope.launch {
             try {
                 val call = authenticationRepository.register(name, email, password)
-
                 // Await result from Call
                 val response = suspendCancellableCoroutine<Response<UserResponse>> { continuation ->
                     call.enqueue(object : Callback<UserResponse> {
@@ -180,6 +168,7 @@ class AuthenticationViewModel(
             }
         }
     }
+
     companion object{
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

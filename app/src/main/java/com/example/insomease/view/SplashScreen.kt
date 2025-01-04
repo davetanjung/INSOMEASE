@@ -27,10 +27,12 @@ import kotlinx.coroutines.delay
 fun SplashScreen (
     onSplashFinish: () -> Unit
                   ){
+
     LaunchedEffect(Unit) {
         delay(3000)
         onSplashFinish()
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()

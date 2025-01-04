@@ -1,8 +1,5 @@
 package com.example.insomease.route
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -16,13 +13,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.insomease.view.HomePage
-import com.example.insomease.view.LoginScreenView
-import com.example.insomease.view.OnBoardingScreen
-import com.example.insomease.view.OnBoardingScreen_2
-import com.example.insomease.view.OnBoardingScreen_3
-import com.example.insomease.view.RegisterScreenPreview
-import com.example.insomease.view.RegisterScreenView
+import com.example.insomease.view.home.HomePage
+import com.example.insomease.view.authentication.LoginScreenView
+import com.example.insomease.view.onboarding.OnBoardingScreen
+import com.example.insomease.view.onboarding.OnBoardingScreen_2
+import com.example.insomease.view.onboarding.OnBoardingScreen_3
+import com.example.insomease.view.authentication.RegisterScreenView
 import com.example.insomease.view.SplashScreen
 import com.example.insomease.viewModels.AuthenticationViewModel
 import com.example.insomease.viewModels.HomePageViewModel
@@ -136,25 +132,17 @@ fun AppRouting(
             }
 
             composable(
-                route = listScreen.HomeScreen.name,
-                enterTransition = {
-                    slideInHorizontally(
-                        initialOffsetX = { fullWidth -> fullWidth }, // Starts from the right
-                        animationSpec = tween(durationMillis = 500)
-                    )
-                },
-                exitTransition = {
-                    slideOutHorizontally(
-                        targetOffsetX = { fullWidth -> -fullWidth }, // Exits to the left
-                        animationSpec = tween(durationMillis = 500)
-                    )
-                },
-            ) {
-                HomePage(
-                    navController = NavController,
-                    homePageViewModel
+                route = listScreen.HomeScreen.name + "/{userId}",
+                arguments = listOf(
+                    navArgument("userId") { type = NavType.IntType } // `userId` as an integer argument
                 )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                requireNotNull(userId) { "userId is required to navigate to HomeScreen" }
+
+                HomePage(navController = NavController, homePageViewModel, userId)
             }
+
 
             composable(
                 route = listScreen.SignUpScreen.name,

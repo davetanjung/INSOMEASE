@@ -3,12 +3,14 @@ package com.example.insomease.repositories
 import com.example.insomease.models.GeneralResponseModel
 import com.example.insomease.models.GetAllActivityResponse
 import com.example.insomease.models.ActivityRequest
+import com.example.insomease.models.GetActivityResponse
 import com.example.insomease.services.ActivityAPIService
 import retrofit2.Call
 import retrofit2.Response
 
 interface ActivityRepository {
     suspend fun getAllActivities(token: String): Response<GetAllActivityResponse>
+    suspend fun getUserActivities(token: String, id: Int): Response<GetActivityResponse>
 
     fun createActivity(
         token: String,
@@ -39,6 +41,13 @@ class NetworkActivityRepository(
     // This method gets all activities
     override suspend fun getAllActivities(token: String): Response<GetAllActivityResponse> {
         return activityAPIService.getAllActivity(token)
+    }
+
+    override suspend fun getUserActivities(
+        token: String,
+        id: Int
+    ): Response<GetActivityResponse> {
+        return activityAPIService.getUserActivities(token, id)
     }
 
     // This method creates a new activity

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.insomease.LunaireApplication
 import com.example.insomease.models.ActivityModel
+import com.example.insomease.models.ActivityUserModel
 import com.example.insomease.repositories.ActivityRepository
 import com.example.insomease.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +32,14 @@ class HomePageViewModel(
             return _activityModel.asStateFlow()
         }
 
+    private val _activityUserModel = MutableStateFlow<MutableList<ActivityUserModel>>(mutableListOf())
+
+    val activityUserModel: StateFlow<List<ActivityUserModel>>
+        get() {
+            return _activityUserModel.asStateFlow()
+        }
+
+
     val token: StateFlow<String> = userRepository.currentUserToken
         .map { it.ifBlank { "Guest" } }
         .stateIn(
@@ -47,25 +56,20 @@ class HomePageViewModel(
             initialValue = "Loading..."
         )
 
-    init {
-        // Collect the token flow and trigger fetch when token has a valid value
-        viewModelScope.launch {
-            token.collect { tokenValue ->
-                if (tokenValue != "Loading..." && tokenValue != "Guest") {
-                    fetchActivities(tokenValue) // Fetch activities once token is valid
-                }
-            }
-        }
-    }
-
-    fun fetchActivities(token: String) {
+    fun fetchActivities(token: String, id: Int) {
         viewModelScope.launch {
             try {
-                val response = activityRepository.getAllActivities(token = token)
+                val response = activityRepository.getUserActivities(token, id)
                 if (response.isSuccessful) {
-                    val activities = response.body()?.data ?: emptyList()
-                    Log.d("HomePageViewModel", "Activities fetched: $activities")
-                    _activityModel.value = activities.toMutableList()
+                    val activities = response.body()?.data
+
+                    // Convert List<ActivityUserModel> to MutableList<ActivityUserModel>
+                    if (activities != null) {
+                        _activityUserModel.value = activities.toMutableList()
+                    } else {
+                        _activityUserModel.value = mutableListOf() // Empty list if no activities
+                    }
+
                 } else {
                     Log.e("HomePageViewModel", "Error: ${response.code()}")
                     // Handle API error
@@ -76,6 +80,7 @@ class HomePageViewModel(
             }
         }
     }
+
 
 
     companion object {
@@ -90,6 +95,8 @@ class HomePageViewModel(
                 )
             }
         }
+
     }
 }
+
 

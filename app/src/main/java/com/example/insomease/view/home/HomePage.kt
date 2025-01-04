@@ -1,25 +1,16 @@
-package com.example.insomease.view
+package com.example.insomease.view.home
 
-import android.graphics.Paint.Align
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,7 +20,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,14 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -62,10 +45,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.insomease.R
 import com.example.insomease.models.ActivityModel
-import com.example.insomease.models.calculateEndPercentage
-import com.example.insomease.models.calculateStartPercentage
-import com.example.insomease.models.parseTime
-import com.example.insomease.route.listScreen
+import com.example.insomease.models.ActivityUserModel
+import com.example.insomease.view.components.BottomNavigationBar
 import com.example.insomease.viewModels.HomePageViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -75,10 +56,17 @@ import java.util.TimeZone
 @Composable
 fun HomePage(
     navController: NavController? = null,
-    homePageViewModel: HomePageViewModel = viewModel(factory = HomePageViewModel.Factory)
+    homePageViewModel: HomePageViewModel = viewModel(factory = HomePageViewModel.Factory),
+    userId: Int
 ) {
     val username by homePageViewModel.username.collectAsState()
+    val token by homePageViewModel.token.collectAsState()
 
+    LaunchedEffect(Unit) {
+        homePageViewModel.fetchActivities(token, userId)
+    }
+
+    // Using standard Box and Column without Flow
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -90,14 +78,30 @@ fun HomePage(
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
+
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            WelcomeSection(username)
-            ClockAndActivitySection(homePageViewModel = homePageViewModel, navController = navController)
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    WelcomeSection(username)
+                    ClockAndActivitySection(
+                        homePageViewModel = homePageViewModel,
+                        navController = navController
+                    )
+                }
+            }
+            BottomNavigationBar(
+                modifier = Modifier,
+                currentScreen = "home"
+            )
         }
     }
 }
@@ -161,24 +165,26 @@ fun ClockView() {
         contentAlignment = Alignment.Center
     ) {
         // Central Text for Sleep Schedule Info
+        Image(
+            painter = painterResource(R.drawable.clock),
+            contentDescription = "Background Image",
+            modifier = Modifier.fillMaxSize(),
+//            contentScale = ContentScale.Crop
+        )
         Text(
             text = "Wake Up\nin 8 hours",
             textAlign = TextAlign.Center,
             color = Color.White,
-            fontSize = 14.sp,
+            fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(8.dp)
         )
-        // Example placeholder for icons and time
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            // Placeholder for clock lines or icons
-        }
     }
 }
 
 @Composable
 fun ActivitiesList(homePageViewModel: HomePageViewModel = viewModel(factory = HomePageViewModel.Factory)) {
-    val activities by homePageViewModel.activityModel.collectAsState() // Collect activity list from ViewModel
+    val activities by homePageViewModel.activityUserModel.collectAsState() // Collect activity list from ViewModel
     var showAllActivities by remember { mutableStateOf(false) } // State for toggle
 
     val displayedActivities = if (showAllActivities) activities else activities.take(2)
@@ -222,7 +228,7 @@ fun ActivitiesList(homePageViewModel: HomePageViewModel = viewModel(factory = Ho
 
 
 @Composable
-fun ActivityItem(activity: ActivityModel) {
+fun ActivityItem(activity: ActivityUserModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -263,5 +269,5 @@ fun formatTime(time: String): String {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HomeScreenPreview() {
-    HomePage()
+//    HomePage()
 }

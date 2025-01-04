@@ -59,7 +59,6 @@ class DefaultAppContainer(
     }
 
     // REPOSITORY INIT
-    // Passing in the required objects is called dependency injection (DI). It is also known as inversion of control.
     override val authenticationRepository: AuthenticationRepository by lazy {
         NetworkAuthenticationRepository(authenticationRetrofitService)
     }
