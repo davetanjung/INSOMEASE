@@ -7,8 +7,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.insomease.repositories.ActivityRepository
 import com.example.insomease.repositories.AuthenticationRepository
+import com.example.insomease.repositories.CategoryRepository
 import com.example.insomease.repositories.NetworkActivityRepository
 import com.example.insomease.repositories.NetworkAuthenticationRepository
+import com.example.insomease.repositories.NetworkCategoryRepository
 import com.example.insomease.repositories.NetworkUserRepository
 import com.example.insomease.repositories.UserRepository
 import com.example.insomease.services.ActivityAPIService
@@ -17,6 +19,7 @@ import com.example.insomease.services.ActivityAPIService
 //import com.example.todolistapp.repositories.TodoRepository
 //import com.example.todolistapp.repositories.UserRepository
 import com.example.insomease.services.AuthenticationAPIService
+import com.example.insomease.services.CategoryService
 import com.example.insomease.services.UserAPIService
 //import com.example.todolistapp.services.TodoAPIService
 //import com.example.todolistapp.services.UserAPIService
@@ -32,6 +35,7 @@ interface AppContainer {
     val authenticationRepository: AuthenticationRepository
     val userRepository: UserRepository
     val activityRepository: ActivityRepository
+    val categoryRepository: CategoryRepository
 }
 
 class DefaultAppContainer(
@@ -58,6 +62,11 @@ class DefaultAppContainer(
         retrofit.create(ActivityAPIService::class.java)
     }
 
+    private val categoryService: CategoryService by lazy {
+        val retrofit = initRetrofit()
+        retrofit.create(CategoryService::class.java)
+    }
+
     // REPOSITORY INIT
     override val authenticationRepository: AuthenticationRepository by lazy {
         NetworkAuthenticationRepository(authenticationRetrofitService)
@@ -71,6 +80,10 @@ class DefaultAppContainer(
 
     override val activityRepository: ActivityRepository by lazy {
         NetworkActivityRepository(activityAPIService)
+    }
+
+    override val categoryRepository: CategoryRepository by lazy {
+        NetworkCategoryRepository(categoryService)
     }
 
     private fun initRetrofit(): Retrofit {

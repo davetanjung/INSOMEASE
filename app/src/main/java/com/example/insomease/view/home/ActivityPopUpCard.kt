@@ -3,161 +3,189 @@ package com.example.insomease.view.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.insomease.R
 import com.example.insomease.models.ActivityRequest
+import com.example.insomease.viewModels.HomePageViewModel
 
 @Composable
-fun ActivityPopUpCard(onSubmit: (ActivityRequest) -> Unit, onClose: () -> Unit) {
+fun ActivityPopUpCard(homePageViewModel: HomePageViewModel) {
+
+    val token by homePageViewModel.token.collectAsState()
+
     // Initialize states for form fields
-    var activityName by remember { mutableStateOf(TextFieldValue("")) }
-    var startTime by remember { mutableStateOf(TextFieldValue("")) }
-    var endTime by remember { mutableStateOf(TextFieldValue("")) }
-    var date by remember { mutableStateOf(TextFieldValue("")) }
-    var categoryId by remember { mutableStateOf(0) }
+    var name by remember { mutableStateOf(homePageViewModel.nameInput) }
+    var categoryId by remember { mutableStateOf(homePageViewModel.categoryId) }
+
+    var expanded by remember { mutableStateOf(false) }
+    var selectedCategoryName by remember { mutableStateOf("Select category") }
+
+    // Categories list from ViewModel
+    val categories by homePageViewModel.categories
+
+    LaunchedEffect(Unit) {
+        homePageViewModel.fetchCategories(token)
+    }
 
     // Card content
-    Card(
+    Box(
         modifier = Modifier
-            .background(Color(0xFF0D1527))
-            .padding(16.dp)
-            .fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp
-        ),
-        shape = RoundedCornerShape(16.dp)
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.2f))
+            .wrapContentSize()
     ) {
-        Column(
+        // Pop-up Card
+        Card(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .background(Color(0xFF182341)),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(24.dp)
+                .align(Alignment.Center)
+                .wrapContentHeight()
+                .fillMaxWidth(fraction = 0.8f), // Adjust the width relative to the screen
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF121538)),
+            shape = MaterialTheme.shapes.medium
         ) {
-            Text(
-                text = "Add New Activity",
-                fontSize = 20.sp,
-                color = Color.White,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Title
+                Text(
+                    text = "Add your Activity",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        color = Color.White
+                    ),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
 
-            // Activity Name Field
-            TextField(
-                value = activityName,
-                onValueChange = { activityName = it },
-                label = { Text("Activity Name") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color(0xFFACACE7),
-                    focusedContainerColor = Color(0xFFACACE7),
-                    unfocusedIndicatorColor = Color(0xFFACACE7),
-                    focusedIndicatorColor = Color(0xFFACACE7)
-                ),
-            )
+                // Activity Title TextField
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Start Time Field
-            TextField(
-                value = startTime,
-                onValueChange = { startTime = it },
-                label = { Text("Start Time (HH:mm)") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color(0xFFACACE7),
-                    focusedContainerColor = Color(0xFFACACE7),
-                    unfocusedIndicatorColor = Color(0xFFACACE7),
-                    focusedIndicatorColor = Color(0xFFACACE7),
-                    unfocusedTextColor = Color.Gray,
-                    focusedTextColor = Color.Gray
-                ),
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // End Time Field
-            TextField(
-                value = endTime,
-                onValueChange = { endTime = it },
-                label = { Text("End Time (HH:mm)") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color(0xFFACACE7),
-                    focusedContainerColor = Color(0xFFACACE7),
-                    unfocusedIndicatorColor = Color(0xFFACACE7),
-                    focusedIndicatorColor = Color(0xFFACACE7)
-                ),
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Date Field
-            TextField(
-                value = date,
-                onValueChange = { date = it },
-                label = { Text("Date (yyyy-mm-dd)") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color(0xFFACACE7),
-                    focusedContainerColor = Color(0xFFACACE7),
-                    unfocusedIndicatorColor = Color(0xFFACACE7),
-                    focusedIndicatorColor = Color(0xFFACACE7)
-                ),
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Submit Button
-            Button(
-                onClick = {
-                    val newActivity = ActivityRequest(
-                        name = activityName.text,
-                        start_time = startTime.text,
-                        end_time = endTime.text,
-                        date = date.text,
-                        userId = 0,  // Set the appropriate user ID
-                        categoryId = categoryId
+                Text(
+                    text = "Title: ",
+                    color = Color.White,
+                    fontFamily = FontFamily(Font(R.font.poppins)),
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Start,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth().align(Alignment.Start)
+                )
+                TextField(
+                    value = name,
+                    onValueChange = {
+                        name = it
+                        homePageViewModel.updateName(name)
+                                    },
+                    placeholder = { Text("Add title", color = Color.White.copy(alpha = 0.7f)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFF1C1F46), shape = MaterialTheme.shapes.small)
+                        .padding(4.dp),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color(0xFF1C1F46), // Color when not focused
+                        focusedContainerColor = Color(0xFF1C1F46),
+                        unfocusedTextColor = Color.White,
+                        focusedTextColor = Color.White
                     )
-                    onSubmit(newActivity)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388))
-            ) {
-                Text(
-                    text = "Submit",
-                    color = Color.White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
                 )
-            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // Cancel Button
-            Button(
-                onClick = { onClose() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFACACE7))
-            ) {
+                // Activity Category Dropdown
                 Text(
-                    text = "Cancel",
+                    text = "Choose Category: ",
                     color = Color.White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = FontFamily(Font(R.font.poppins)),
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Start,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth().align(Alignment.Start)
                 )
+
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    Button(
+                        onClick = { expanded = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1C1F46)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = selectedCategoryName,
+                            color = Color.White
+                        )
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = "Icon Arrow Down",
+                            tint = Color.Gray
+                        )
+                    }
+                    // Modify DropdownMenu positioning
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .fillMaxWidth(1/2f)
+                            .align(Alignment.TopStart)
+                            .background(Color(0xFF1C1F46))
+                    ) {
+                        if (categories.data.isEmpty()) {
+                            DropdownMenuItem(
+                                onClick = {},
+                                text = { Text("No categories available", color = Color.White) },
+                                modifier = Modifier.background(color = Color(0xFF1C1F46))
+                            )
+                        } else {
+                            categories.data.forEach { category ->
+                                DropdownMenuItem(
+                                    text = { Text(text = category.name, color = Color.White) },
+                                    onClick = {
+                                        selectedCategoryName = category.name
+                                        categoryId = category.id
+                                        homePageViewModel.updateCategoryId(categoryId)
+                                        expanded = false
+                                    },
+                                    modifier = Modifier.background(color = Color(0xFF1C1F46))
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Button
+                Button(
+                    onClick = {
+                        if (name.isNotEmpty() && selectedCategoryName != "Select category") {
+                            homePageViewModel.toggleNextPopUp()
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF6954DE),
+                        contentColor = Color.White
+                    ),
+                    shape = MaterialTheme.shapes.small
+                ) {
+                    Text("Next", modifier = Modifier.padding(horizontal = 32.dp))
+                }
             }
         }
     }
 }
+
 

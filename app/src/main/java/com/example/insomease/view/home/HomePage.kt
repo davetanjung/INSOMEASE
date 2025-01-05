@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,6 +51,7 @@ import com.example.insomease.models.ActivityUserModel
 import com.example.insomease.view.components.BottomNavigationBar
 import com.example.insomease.viewModels.HomePageViewModel
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
@@ -61,13 +64,14 @@ fun HomePage(
 ) {
     val username by homePageViewModel.username.collectAsState()
     val token by homePageViewModel.token.collectAsState()
-    val showPopup by homePageViewModel.showPopup
+    val showPopup = homePageViewModel.showPopUp
+    val showNextPopUp = homePageViewModel.showNextPopUp
 
     LaunchedEffect(Unit) {
         homePageViewModel.fetchActivities(token, userId)
+        homePageViewModel.fetchCategories(token)
     }
 
-    // Using standard Box and Column without Flow
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -111,7 +115,6 @@ fun HomePage(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    
                 }
             }
             BottomNavigationBar(
@@ -119,8 +122,28 @@ fun HomePage(
                 currentScreen = "home"
             )
         }
+
+        // Show Popup if state is true
+        if (showPopup) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f)), // Dim the background
+                contentAlignment = Alignment.Center
+            ) {
+                if(showNextPopUp){
+                    ActivityPopUpCard2(
+                        homePageViewModel,
+                        navController
+                    )
+                } else {
+                    ActivityPopUpCard(homePageViewModel)
+                }
+            }
+        }
     }
 }
+
 
 
 @Composable
@@ -153,15 +176,27 @@ fun ClockAndActivitySection(
             )
             .padding(16.dp)
     ) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            ClockView()
-            Spacer(modifier = Modifier.width(16.dp))
-            ActivitiesList(homePageViewModel = homePageViewModel)
+        Column(
+
+        ){
+            Text(
+                text = "🗓️ ${getFormattedCurrentDate()}",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ClockView()
+                Spacer(modifier = Modifier.width(16.dp))
+                ActivitiesList(homePageViewModel = homePageViewModel)
+            }
         }
+
     }
 }
 
@@ -209,13 +244,6 @@ fun ActivitiesList(homePageViewModel: HomePageViewModel = viewModel(factory = Ho
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.padding(16.dp)
     ) {
-        Text(
-            text = "🗓️ Monday, 2 December",
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp
-        )
-
         LazyColumn(
             contentPadding = PaddingValues(vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -271,15 +299,19 @@ fun formatTime(time: String): String {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
         inputFormat.timeZone = TimeZone.getTimeZone("UTC") // Handle the 'Z' (UTC timezone)
 
-        // Define the desired output format
         val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         val date = inputFormat.parse(time)
 
-        // Format to desired output or return the original if parsing fails
         date?.let { outputFormat.format(it) } ?: time
     } catch (e: Exception) {
-        time // Return the original input if formatting fails
+        time
     }
+}
+
+fun getFormattedCurrentDate(): String {
+    val dateFormat = SimpleDateFormat("EEEE, d MMMM", Locale.getDefault())
+    val calendar = Calendar.getInstance()
+    return dateFormat.format(calendar.time)
 }
 
 @Preview(showBackground = true, showSystemUi = true)

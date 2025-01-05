@@ -29,7 +29,7 @@ interface ActivityAPIService {
     fun createActivity(
         @Header("X-API-TOKEN") token: String,
         @Body activityRequest: ActivityRequest
-    ): Call<GeneralResponseModel>
+    ): Call<ActivityRequest>
 
     @PUT("api/activity/{id}")
     fun updateActivity(
