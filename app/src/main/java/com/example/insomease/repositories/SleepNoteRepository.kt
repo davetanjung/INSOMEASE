@@ -1,56 +1,37 @@
-package com.example.insomease.repository
+package com.example.insomease.repositories
 
-import com.example.insomease.models.SleepNote
-import com.example.insomease.services.SleepNoteService
+import com.example.insomease.models.TimePickerModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
-class SleepNoteRepository(private val service: SleepNoteService) {
+class SleepNoteRepository {
+    private val _selectedFeeling = MutableStateFlow("")
+    val selectedFeeling: StateFlow<String> get() = _selectedFeeling
 
-    private val _sleepNotes = MutableStateFlow<List<SleepNote>>(emptyList())
-    val sleepNotes: StateFlow<List<SleepNote>> get() = _sleepNotes
+    private val _selectedActivities = MutableStateFlow<List<String>>(emptyList())
+    val selectedActivities: StateFlow<List<String>> get() = _selectedActivities
 
-    suspend fun saveSleepNote(
-        token: String,
-        sleepNote: SleepNote,
-        onComplete: (Boolean) -> Unit
-    ) {
-        try {
-            val response = service.saveSleepNote(token, sleepNote).execute()
-            if (response.isSuccessful) {
-                onComplete(true)
-            } else {
-                onComplete(false)
-            }
-        } catch (e: Exception) {
-            onComplete(false)
+    private val _sleepNoteTime = MutableStateFlow(TimePickerModel())
+    val sleepNoteTime: StateFlow<TimePickerModel> get() = _sleepNoteTime
+
+    fun selectFeeling(feeling: String) {
+        _selectedFeeling.value = feeling
+    }
+
+    fun toggleActivity(activity: String) {
+        _selectedActivities.value = if (_selectedActivities.value.contains(activity)) {
+            _selectedActivities.value - activity
+        } else {
+            _selectedActivities.value + activity
         }
     }
 
-    suspend fun fetchSleepNotes(token: String) {
-        try {
-            val response = service.getSleepNotes(token).execute()
-            if (response.isSuccessful) {
-                _sleepNotes.value = response.body() ?: emptyList()
-            }
-        } catch (e: Exception) {
-            _sleepNotes.value = emptyList()
-        }
+    fun updateSleepNoteTime(hour: Int, minute: Int) {
+        _sleepNoteTime.value = TimePickerModel(hour, minute)
     }
 
-    companion object {
-        fun create(): SleepNoteRepository {
-            val retrofit = Retrofit.Builder()
-                .baseUrl("https://your-api-url.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-
-            val service = retrofit.create(SleepNoteService::class.java)
-            return SleepNoteRepository(service)
-        }
+    fun saveSleepNote() {
+        // Simpan sleep note ke server atau database lokal di sini.
+        // Contoh logika bisa ditambahkan jika ada API atau penyimpanan lokal.
     }
-
-
 }
