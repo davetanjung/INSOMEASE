@@ -1,22 +1,21 @@
 package com.example.insomease.services
 
-import com.example.insomease.models.GeneralResponseModel
-import com.example.insomease.models.TimePickerModel
+import com.example.insomease.models.SleepNote
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface SleepNoteService {
-    @POST("api/sleep_note")
+    @POST("api/sleep-notes")
     fun saveSleepNote(
         @Header("Authorization") token: String,
-        @Body sleepNote: SleepNoteRequest
-    ): Call<GeneralResponseModel>
-}
+        @Body sleepNote: SleepNote
+    ): Call<Unit>
 
-data class SleepNoteRequest(
-    val feeling: String,
-    val activities: List<String>,
-    val time: TimePickerModel
-)
+    @GET("api/sleep-notes")
+    fun getSleepNotes(
+        @Header("Authorization") token: String
+    ): Call<List<SleepNote>>
+}

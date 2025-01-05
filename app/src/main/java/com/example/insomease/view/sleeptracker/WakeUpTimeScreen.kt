@@ -43,7 +43,7 @@ fun WakeUpTimeScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        // Background Image
+
         Image(
             painter = painterResource(R.drawable.home_background),
             contentDescription = "Background Image",
