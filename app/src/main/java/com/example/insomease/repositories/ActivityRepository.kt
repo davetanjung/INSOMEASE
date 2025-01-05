@@ -18,9 +18,9 @@ interface ActivityRepository {
         start_time: String,
         end_time: String,
         date: String,
-        category_id: Int,
-        user_id: Int
-    ): Call<GeneralResponseModel>
+        userId: Int,
+        categoryId: Int
+    ): Call<ActivityRequest>
 
     fun updateActivity(
         token: String,
@@ -59,7 +59,7 @@ class NetworkActivityRepository(
         date: String,
         category_id: Int,
         user_id: Int
-    ): Call<GeneralResponseModel> {
+    ): Call<ActivityRequest> {
         val activityRequest = ActivityRequest(
             title,
             start_time,

@@ -37,7 +37,6 @@ data class ActivityUserModel (
     val end_time: String = "",
     val date: String = "",
 
-    @SerializedName("category_id")
     val categoryId: Int = 0
 )
 
@@ -48,11 +47,9 @@ data class ActivityRequest(
     val end_time: String = "",
     val date: String = "",
 
-    @SerializedName("user_id")
-    val userId: Int = 0,
+    val categoryId: Int = 0,
 
-    @SerializedName("category_id")
-    val categoryId: Int = 0
+val userId: Int = 0
 )
 
 fun convertTimeToMinutes(time: String): Int {
