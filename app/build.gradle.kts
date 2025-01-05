@@ -41,8 +41,8 @@ android {
 }
 
 dependencies {
-
     implementation("androidx.compose.foundation:foundation:<compose_version>")
+
     implementation("androidx.compose.material:material:<compose_version>")
     implementation("com.tbuonomo:dotsindicator:4.2")
     implementation ("androidx.viewpager2:viewpager2:1.0.0")

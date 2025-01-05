@@ -5,20 +5,32 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class AlarmRepository {
+    private val alarmData = MutableStateFlow(AlarmModel())
 
-    // StateFlow untuk menyimpan data AlarmModel
-    private val _alarmData = MutableStateFlow(AlarmModel())
-    val alarmData: StateFlow<AlarmModel> get() = _alarmData
-
-    // Mengupdate waktu alarm
-    fun setAlarmTime(time: String) {
-        val currentData = _alarmData.value
-        _alarmData.value = currentData.copy(alarmTime = time)
+    fun getAlarm(): StateFlow<AlarmModel> {
+        return alarmData
     }
 
-    // Mengupdate noise lingkungan
-    fun updateAmbientNoise(noise: String) {
-        val currentData = _alarmData.value
-        _alarmData.value = currentData.copy(ambientNoise = noise)
+    fun setAlarm(time: String) {
+        alarmData.value = alarmData.value.copy(time = time, isActive = true)
+    }
+
+    fun dismissAlarm() {
+        alarmData.value = alarmData.value.copy(isActive = false)
+    }
+
+    fun snoozeAlarm(snoozeDuration: Int) {
+        val currentAlarmTime = alarmData.value.time.split(":").map { it.toInt() }
+        val hour = currentAlarmTime[0]
+        val minute = currentAlarmTime[1] + snoozeDuration
+
+        val newTime = if (minute >= 60) {
+            String.format("%02d:%02d", (hour + 1) % 24, minute % 60)
+        } else {
+            String.format("%02d:%02d", hour, minute)
+        }
+
+        alarmData.value = alarmData.value.copy(time = newTime, isActive = true)
     }
 }
+
