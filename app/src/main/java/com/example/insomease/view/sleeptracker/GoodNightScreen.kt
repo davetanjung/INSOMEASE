@@ -1,4 +1,4 @@
-package com.example.insomease.view
+package com.example.insomease.view.sleeptracker
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*

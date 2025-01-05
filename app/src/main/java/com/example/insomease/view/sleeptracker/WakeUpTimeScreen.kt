@@ -15,9 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -32,15 +30,20 @@ import com.example.insomease.R
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 
-import androidx.compose.ui.text.TextStyle
+import com.example.insomease.viewmodel.WakeUpTimeViewModel
 
 @Composable
-fun SleepTrackerScreen(navController: NavController? = null) {
+fun WakeUpTimeScreen(
+    navController: NavController? = null,
+    viewModel: WakeUpTimeViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
+    val wakeUpTimeModel by viewModel.wakeUpTime.collectAsState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        // Background Image
+
         Image(
             painter = painterResource(R.drawable.home_background),
             contentDescription = "Background Image",
@@ -68,15 +71,23 @@ fun SleepTrackerScreen(navController: NavController? = null) {
 
             Spacer(modifier = Modifier.height(90.dp))
 
-
             // Scrollable Time Picker
-            TimePicker()
+            TimePicker(
+                initialHour = wakeUpTimeModel.selectedTime.split(":")[0].toInt(),
+                initialMinute = wakeUpTimeModel.selectedTime.split(":")[1].toInt(),
+                onTimeSelected = { hour, minute ->
+                    val formattedTime = String.format("%02d:%02d", hour, minute)
+                    viewModel.setWakeUpTime(formattedTime)
+                }
+            )
 
             Spacer(modifier = Modifier.height(90.dp))
 
             // Continue Button
             Button(
-                onClick = { /* Add action */ },
+                onClick = {
+                    navController?.navigate("nextScreen") // Ganti dengan rute navigasi Anda
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388)),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -101,24 +112,21 @@ fun SleepTrackerScreen(navController: NavController? = null) {
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(top = 16.dp)
-                    .clickable { /* Add action */ },
-
-                style = TextStyle(
-                    shadow = Shadow(
-                        color = Color.White,
-                        offset = Offset(0f, 0f),
-                        blurRadius = 10f
-                    )
-                )
+                    .clickable { navController?.popBackStack() }
             )
         }
     }
 }
 
+
 @Composable
-fun TimePicker() {
-    var selectedHour by remember { mutableStateOf(8) }
-    var selectedMinute by remember { mutableStateOf(0) }
+fun TimePicker(
+    initialHour: Int,
+    initialMinute: Int,
+    onTimeSelected: (Int, Int) -> Unit
+) {
+    var selectedHour by remember { mutableStateOf(initialHour) }
+    var selectedMinute by remember { mutableStateOf(initialMinute) }
 
     Row(
         modifier = Modifier
@@ -132,7 +140,10 @@ fun TimePicker() {
         NumberScroller(
             range = 0..23,
             selectedValue = selectedHour,
-            onValueChange = { selectedHour = it }
+            onValueChange = {
+                selectedHour = it
+                onTimeSelected(selectedHour, selectedMinute)
+            }
         )
 
         // Separator
@@ -148,7 +159,10 @@ fun TimePicker() {
         NumberScroller(
             range = 0..59,
             selectedValue = selectedMinute,
-            onValueChange = { selectedMinute = it }
+            onValueChange = {
+                selectedMinute = it
+                onTimeSelected(selectedHour, selectedMinute)
+            }
         )
     }
 }
@@ -210,6 +224,6 @@ fun NumberScroller(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun SleepTrackerPreview() {
-    SleepTrackerScreen()
+fun WakeUpTimeScreenPreview() {
+    WakeUpTimeScreen()
 }
