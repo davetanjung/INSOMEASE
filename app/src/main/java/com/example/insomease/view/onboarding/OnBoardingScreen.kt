@@ -126,14 +126,6 @@ fun OnBoardingScreen_2(
     Box(
         modifier = Modifier
             .fillMaxSize()
-//            .pointerInput(Unit) {
-//                detectDragGestures { change, dragAmount ->
-//                    if (dragAmount.x < 0) {
-//                        // Swipe left
-//                        navController?.navigate("OnBoardingScreen_3")
-//                    }
-//                }
-//            }
     ) {
         Image(
             painter = painterResource(R.drawable.splash_screen_bg), // Your background image resource

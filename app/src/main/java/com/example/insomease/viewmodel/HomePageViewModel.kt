@@ -17,6 +17,7 @@ import com.example.insomease.models.ActivityModel
 import com.example.insomease.models.ActivityRequest
 import com.example.insomease.models.ActivityUserModel
 import com.example.insomease.models.GeneralResponseModel
+import com.example.insomease.models.GetActivityResponse
 import com.example.insomease.models.GetAllCategoryResponse
 import com.example.insomease.models.UserResponse
 import com.example.insomease.repositories.ActivityRepository
@@ -34,6 +35,10 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -54,6 +59,9 @@ class HomePageViewModel(
     var date by mutableStateOf("")
         private set
 
+    private val _currentUserId = MutableStateFlow(0)
+    val currentUserId: StateFlow<Int> = _currentUserId
+
     private val _activityModel = MutableStateFlow<MutableList<ActivityModel>>(mutableListOf())
 
     val activityModel: StateFlow<List<ActivityModel>>
@@ -68,6 +76,9 @@ class HomePageViewModel(
             return _activityUserModel.asStateFlow()
         }
 
+    private val _activityDetail = mutableStateOf<ActivityUserModel?>(null)
+    val activityDetail: State<ActivityUserModel?> = _activityDetail
+
     private val _categories = mutableStateOf(GetAllCategoryResponse(emptyList()))
     val categories: State<GetAllCategoryResponse> = _categories
 
@@ -76,6 +87,9 @@ class HomePageViewModel(
 
     private val _errorState = mutableStateOf<String?>(null)
     val errorState = _errorState
+
+    private val _selectedDate = MutableStateFlow(Calendar.getInstance().time)
+    val selectedDate: StateFlow<Date> = _selectedDate
 
     var showPopUp by mutableStateOf(false)
         private set
@@ -103,6 +117,16 @@ class HomePageViewModel(
         end_time = newEndTime
     }
 
+    fun getUserId() {
+        viewModelScope.launch {
+            userRepository.currentUserId.collect { userId ->
+                val userIdInt = userId.toIntOrNull()
+                if (userIdInt != null) {
+                    _currentUserId.value = userIdInt
+                }
+            }
+        }
+    }
 
     val token: StateFlow<String> = userRepository.currentUserToken
         .map { it.ifBlank { "Guest" } }
@@ -128,15 +152,35 @@ class HomePageViewModel(
         showNextPopUp = !showNextPopUp
     }
 
+    fun updateSelectedDate(offset: Int) {
+        val calendar = Calendar.getInstance()
+        calendar.time = _selectedDate.value
+        calendar.add(Calendar.DATE, offset)
+        _selectedDate.value = calendar.time
 
-    fun fetchActivities(token: String, id: Int) {
+        // Refresh activities for the selected date
+        fetchActivitiesForDate(_selectedDate.value)
+    }
+
+    private fun fetchActivitiesForDate(date: Date) {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val formattedDate = dateFormat.format(date)
+
+        viewModelScope.launch {
+            val userId = currentUserId.value
+            fetchActivities(token = token.value, id = userId, specificDate = formattedDate)
+        }
+    }
+
+
+
+    fun fetchActivities(token: String, id: Int, specificDate: String? = null) {
+        Log.d("HomePageViewModel", "Fetching activities for: $specificDate")
         viewModelScope.launch {
             try {
-                val response = activityRepository.getUserActivities(token, id)
+                val response = activityRepository.getUserActivities(token, id, specificDate)
                 if (response.isSuccessful) {
                     val activities = response.body()?.data
-
-                    // Convert List<ActivityUserModel> to MutableList<ActivityUserModel>
                     if (activities != null) {
                         _activityUserModel.value = activities.toMutableList()
                     } else {
@@ -173,6 +217,88 @@ class HomePageViewModel(
             } catch (e: Exception) {
                 Log.e("HomePageViewModel", "Error fetching categories: ${e.message}")
                 _errorState.value = "Error: ${e.message}"
+            }
+        }
+    }
+
+    fun getActivityById(token: String, activityId: Int) {
+        viewModelScope.launch {
+            try {
+                val response = activityRepository.getActivityById(token, activityId)
+                if (response.isSuccessful) {
+                    val activityData = response.body()
+                    _activityDetail.value = activityData
+                } else {
+                    Log.e("HomePageViewModel", "Error: ${response.code()}")
+                    _errorState.value = "Error: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                Log.e("HomePageViewModel", "Error fetching activity: ${e.message}")
+                _errorState.value = "Error: ${e.message}"
+            }
+        }
+    }
+
+    fun updateActivity(
+        token: String,
+        activityId: Int,
+        name: String,
+        start_time: String,
+        end_time: String,
+        date: String,
+        categoryId: Int
+    ) {
+        viewModelScope.launch {
+            try {
+                val activityUserModel = ActivityUserModel(
+                    activityId,
+                    name,
+                    start_time,
+                    end_time,
+                    date,
+                    categoryId
+                )
+
+                val call = activityRepository.updateActivity(
+                    token,
+                    activityId,
+                    activityUserModel.name,
+                    activityUserModel.start_time,
+                    activityUserModel.end_time,
+                    activityUserModel.date,
+                    activityUserModel.categoryId
+                )
+                // Await result from Call
+                val response = suspendCancellableCoroutine { continuation ->
+                    call.enqueue(object : Callback<ActivityUserModel> {
+                        override fun onResponse(
+                            call: Call<ActivityUserModel>,
+                            response: Response<ActivityUserModel>
+                        ) {
+                            continuation.resume(response)
+                        }
+
+                        override fun onFailure(p0: Call<ActivityUserModel>, t: Throwable) {
+                            Log.e("CreateActivityViewModel", "API Failure: ${t.localizedMessage}")
+                            _errorState.value = "Network Error: ${t.message}"
+                            continuation.resumeWithException(t)
+                        }
+                    })
+
+                    continuation.invokeOnCancellation {
+                        call.cancel()
+                    }
+                }
+                if (response.isSuccessful) {
+                    // Update the current activity detail with the updated response body
+                    _activityDetail.value = response.body()
+                } else {
+                    _errorState.value = "Error: ${response.code()}"
+                    Log.e("HomePageViewModel", "Error: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                _errorState.value = "Error: ${e.message}"
+                Log.e("HomePageViewModel", "Error: ${e.message}")
             }
         }
     }

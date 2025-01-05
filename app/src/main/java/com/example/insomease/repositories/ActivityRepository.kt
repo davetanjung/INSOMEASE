@@ -3,6 +3,7 @@ package com.example.insomease.repositories
 import com.example.insomease.models.GeneralResponseModel
 import com.example.insomease.models.GetAllActivityResponse
 import com.example.insomease.models.ActivityRequest
+import com.example.insomease.models.ActivityUserModel
 import com.example.insomease.models.GetActivityResponse
 import com.example.insomease.services.ActivityAPIService
 import retrofit2.Call
@@ -10,7 +11,8 @@ import retrofit2.Response
 
 interface ActivityRepository {
     suspend fun getAllActivities(token: String): Response<GetAllActivityResponse>
-    suspend fun getUserActivities(token: String, id: Int): Response<GetActivityResponse>
+    suspend fun getUserActivities(token: String, id: Int, specificDate: String?): Response<GetActivityResponse>
+    suspend fun getActivityById(token: String, id: Int): Response<ActivityUserModel>
 
     fun createActivity(
         token: String,
@@ -28,8 +30,9 @@ interface ActivityRepository {
         title: String,
         start_time: String,
         end_time: String,
-        date: String
-    ): Call<ActivityRequest>
+        date: String,
+        categoryId: Int
+    ): Call<ActivityUserModel>
 
     fun deleteActivity(token: String, activityId: Int): Call<GeneralResponseModel>
 }
@@ -45,9 +48,14 @@ class NetworkActivityRepository(
 
     override suspend fun getUserActivities(
         token: String,
-        id: Int
+        id: Int,
+        specificDate: String?
     ): Response<GetActivityResponse> {
-        return activityAPIService.getUserActivities(token, id)
+        return activityAPIService.getUserActivities(token, id, specificDate)
+    }
+
+    override suspend fun getActivityById(token: String, id: Int): Response<ActivityUserModel> {
+        return activityAPIService.getActivityById(token, id)
     }
 
     // This method creates a new activity
@@ -71,22 +79,24 @@ class NetworkActivityRepository(
         return activityAPIService.createActivity(token, activityRequest)
     }
 
-    // This method updates an existing activity
     override fun updateActivity(
         token: String,
         activityId: Int,
         title: String,
         start_time: String,
         end_time: String,
-        date: String
-    ): Call<ActivityRequest> {
-        val activityRequest = ActivityRequest(
+        date: String,
+        categoryId: Int
+    ): Call<ActivityUserModel> {
+        val activityUserModel = ActivityUserModel(
+            activityId,
             title,
             start_time,
             end_time,
             date,
+            categoryId
         )
-        return activityAPIService.updateActivity(token, activityId, activityRequest)
+        return activityAPIService.updateActivity(token, activityId, activityUserModel)
     }
 
     // This method deletes an existing activity
