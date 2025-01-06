@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.insomease.models.ActivityUserModel
 import com.example.insomease.view.home.HomePage
 import com.example.insomease.view.authentication.LoginScreenView
 import com.example.insomease.view.onboarding.OnBoardingScreen
@@ -20,6 +21,7 @@ import com.example.insomease.view.onboarding.OnBoardingScreen_2
 import com.example.insomease.view.onboarding.OnBoardingScreen_3
 import com.example.insomease.view.authentication.RegisterScreenView
 import com.example.insomease.view.SplashScreen
+import com.example.insomease.view.home.ActivityDetailCard
 import com.example.insomease.viewModels.AuthenticationViewModel
 import com.example.insomease.viewModels.HomePageViewModel
 
@@ -30,7 +32,8 @@ enum class listScreen(){
     OnBoardingScreen_3,
     LoginScreen,
     SignUpScreen,
-    HomeScreen
+    HomeScreen,
+    ActivityDetailScreen
 }
 
 @Composable
@@ -141,6 +144,29 @@ fun AppRouting(
                 requireNotNull(userId) { "userId is required to navigate to HomeScreen" }
 
                 HomePage(navController = NavController, homePageViewModel, userId)
+            }
+
+            composable(
+                route = listScreen.ActivityDetailScreen.name + "/{userId}/{activityId}",
+                arguments = listOf(
+                    navArgument("userId") { type = NavType.IntType },
+                    navArgument("activityId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val activityId = backStackEntry.arguments?.getInt("activityId")
+
+                requireNotNull(userId) { "User ID is required" }
+                requireNotNull(activityId) { "Activity ID is required" }
+
+                // You can now pass both userId and activityId to the ActivityDetailCard
+                ActivityDetailCard(
+                    navController = NavController,
+                    userId = userId,
+                    activityId = activityId,
+                    activity = ActivityUserModel(),  // You can fetch the activity data based on activityId if necessary
+                    homePageViewModel
+                )
             }
 
 

@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -166,7 +167,7 @@ fun LoginScreenView(
                     containerColor = Color(0xFF514388),
                     disabledContainerColor = Color.Gray
                 ),
-                modifier = Modifier.padding(vertical = 30.dp)
+                modifier = Modifier.padding(vertical = 30.dp, horizontal = 40.dp)
             ) {
                 Text(
                     text = "Login",
@@ -174,7 +175,8 @@ fun LoginScreenView(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
                 )
             }
 

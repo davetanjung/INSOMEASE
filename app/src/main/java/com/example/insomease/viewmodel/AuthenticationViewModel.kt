@@ -118,6 +118,8 @@ class AuthenticationViewModel(
                     val userId = userData?.data?.id ?: 0
                     userRepository.saveUserToken(userData?.data?.token.orEmpty())
                     userRepository.saveUsername(userData?.data?.username.orEmpty())
+                    userRepository.saveUserId(userId.toString())
+                    // Navigate to the Home screen or Login page upon successful login
                     navController.navigate("${listScreen.HomeScreen.name}/$userId")
                 } else {
                     errorMessage = response.message()

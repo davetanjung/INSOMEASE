@@ -160,7 +160,7 @@ fun ActivityPopUpCard2(
                     },
                     readOnly = true,
                     enabled = false,
-                    placeholder = { Text("Select end time (HH:MM)", color = Color.White.copy(alpha = 0.7f)) },
+                    placeholder = { Text("Select end time", color = Color.White.copy(alpha = 0.7f)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color(0xFF1C1F46), RoundedCornerShape(4.dp)),
@@ -170,7 +170,7 @@ fun ActivityPopUpCard2(
                         disabledPlaceholderColor = Color.White.copy(alpha = 0.7f),
                     )
                 )
-                // Clickable overlay for end time picker
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -192,6 +192,7 @@ fun ActivityPopUpCard2(
                             categoryId = homePageViewModel.categoryId,
                             userId = userId
                         )
+                        homePageViewModel.toggleNextPopUp()
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF6954DE),
