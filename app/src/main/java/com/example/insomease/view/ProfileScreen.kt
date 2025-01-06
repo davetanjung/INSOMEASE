@@ -22,7 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.insomease.R
-import com.example.insomease.view.sleeptracker.BottomNavigationBar
 
 @Composable
 fun ProfileScreen() {
@@ -208,10 +207,6 @@ fun ProfileScreen() {
 
     }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Bottom Navigation Placeholder
-        BottomNavigationBar()
     }
 }
 

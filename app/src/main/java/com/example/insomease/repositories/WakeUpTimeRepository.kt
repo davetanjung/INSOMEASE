@@ -16,13 +16,17 @@ class WakeUpTimeRepository(private val service: WakeUpTimeService = WakeUpTimeSe
     }
 
     fun setWakeUpTime(newTime: String) {
+
         if (service.validateWakeUpTime(newTime)) {
-            wakeUpTimeData.value = wakeUpTimeData.value.copy(
-                selectedTime = newTime,
-                isWakeUpSet = true
-            )
+            if (wakeUpTimeData.value.selectedTime != newTime) {
+                wakeUpTimeData.value = wakeUpTimeData.value.copy(
+                    selectedTime = newTime,
+                    isWakeUpSet = true
+                )
+            }
         } else {
             throw IllegalArgumentException("Invalid time format: $newTime")
         }
     }
+
 }

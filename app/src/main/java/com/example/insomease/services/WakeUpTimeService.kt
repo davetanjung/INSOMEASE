@@ -2,10 +2,11 @@ package com.example.insomease.services
 
 class WakeUpTimeService {
 
-    // Fungsi untuk mendapatkan waktu bangun default dari sumber eksternal (simulasi)
     fun fetchDefaultWakeUpTime(): String {
-        return ""
+        // Misalnya, panggil API atau gunakan waktu default lokal
+        return "06:00"  // Mengembalikan waktu default yang valid
     }
+
 
     // Fungsi untuk memvalidasi waktu bangun yang dipilih
     fun validateWakeUpTime(selectedTime: String): Boolean {

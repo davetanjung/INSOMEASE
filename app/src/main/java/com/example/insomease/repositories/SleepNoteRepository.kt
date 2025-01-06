@@ -1,37 +1,35 @@
 package com.example.insomease.repositories
 
-import com.example.insomease.models.TimePickerModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.example.insomease.models.SleepNoteApiModel
+import com.example.insomease.models.SleepNoteModel
+import com.example.insomease.models.SleepNoteResponse
+import com.example.insomease.services.SleepNoteAPI
+import retrofit2.Call
+import retrofit2.Response
 
-class SleepNoteRepository {
-    private val _selectedFeeling = MutableStateFlow("")
-    val selectedFeeling: StateFlow<String> get() = _selectedFeeling
+interface SleepNoteRepository {
+    suspend fun saveSleepNote(sleepNote: SleepNoteModel): SleepNoteResponse?
+    suspend fun getAllSleepNotes(): List<SleepNoteResponse>
+}
 
-    private val _selectedActivities = MutableStateFlow<List<String>>(emptyList())
-    val selectedActivities: StateFlow<List<String>> get() = _selectedActivities
-
-    private val _sleepNoteTime = MutableStateFlow(TimePickerModel())
-    val sleepNoteTime: StateFlow<TimePickerModel> get() = _sleepNoteTime
-
-    fun selectFeeling(feeling: String) {
-        _selectedFeeling.value = feeling
+class NetworkSleepNoteRepository(
+    private val sleepNoteAPI: SleepNoteAPI
+) : SleepNoteRepository {
+    override suspend fun saveSleepNote(sleepNote: SleepNoteModel): SleepNoteResponse? {
+        val apiModel = SleepNoteApiModel(
+            id = sleepNote.id,
+            date = sleepNote.date,
+            bedTime = sleepNote.bedTime,
+            wakeTime = sleepNote.wakeTime,
+            mood = sleepNote.mood,
+            sleepHours = sleepNote.sleepHours
+        )
+        val response = sleepNoteAPI.saveSleepNote(apiModel)
+        return if (response.isSuccessful) response.body() else null
     }
 
-    fun toggleActivity(activity: String) {
-        _selectedActivities.value = if (_selectedActivities.value.contains(activity)) {
-            _selectedActivities.value - activity
-        } else {
-            _selectedActivities.value + activity
-        }
-    }
-
-    fun updateSleepNoteTime(hour: Int, minute: Int) {
-        _sleepNoteTime.value = TimePickerModel(hour, minute)
-    }
-
-    fun saveSleepNote() {
-        // Simpan sleep note ke server atau database lokal di sini.
-        // Contoh logika bisa ditambahkan jika ada API atau penyimpanan lokal.
+    override suspend fun getAllSleepNotes(): List<SleepNoteResponse> {
+        val response = sleepNoteAPI.getAllSleepNotes()
+        return if (response.isSuccessful) response.body() ?: emptyList() else emptyList()
     }
 }

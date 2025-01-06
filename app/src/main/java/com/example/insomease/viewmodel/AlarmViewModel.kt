@@ -1,62 +1,72 @@
+package com.example.insomease.viewmodel
+
 import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.insomease.repositories.AlarmRepository
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-class AlarmViewModel(private val repository: AlarmRepository) : ViewModel() {
+class AlarmViewModel(private val repository: AlarmRepository = AlarmRepository()) : ViewModel() {
 
-    // Waktu saat ini
-    private val _currentTime = MutableStateFlow("00:00")
-    val currentTime: StateFlow<String> = _currentTime.asStateFlow()
+    // Untuk memantau apakah alarm sudah aktif
+    private val _isAlarmTriggered = MutableStateFlow(false)
+    val isAlarmTriggered: StateFlow<Boolean> = _isAlarmTriggered
 
-    // Data alarm
-    val alarmTime: StateFlow<String> = repository.getAlarm().map { it.time }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = "00:00"
+    val currentTime: StateFlow<String> = repository.alarmData.map { getCurrentTime() }.stateIn(
+        viewModelScope,
+        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+        initialValue = getCurrentTime()
     )
 
-    // Status alarm aktif atau tidak
-    private val _isAlarmTriggered = MutableStateFlow(false)
-    val isAlarmTriggered: StateFlow<Boolean> = _isAlarmTriggered.asStateFlow()
+    val alarmTime: StateFlow<String> = repository.alarmData.map { it.alarmTime }.stateIn(
+        viewModelScope,
+        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+        initialValue = repository.alarmData.value.alarmTime
+    )
 
     init {
-        // Jalankan pemantauan waktu saat ini
-        monitorCurrentTime()
+        monitorTime()
     }
 
     @SuppressLint("NewApi")
-    private fun monitorCurrentTime() {
+    private fun getCurrentTime(): String {
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+        return LocalTime.now().format(formatter)
+    }
+
+    private fun monitorTime() {
         viewModelScope.launch {
             while (true) {
-                delay(1000L) // Perbarui setiap detik
-                val now = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
-                _currentTime.value = now
-
-                // Cek apakah alarm harus dipicu
-                if (repository.getAlarm().value.isActive && now == repository.getAlarm().value.time) {
+                val now = getCurrentTime()
+                if (now == repository.alarmData.value.alarmTime) {
                     _isAlarmTriggered.value = true
                 }
+                delay(1000)
             }
         }
     }
 
     fun dismissAlarm() {
         _isAlarmTriggered.value = false
-        repository.dismissAlarm()
     }
 
-    fun snoozeAlarm(snoozeMinutes: Int = 5) {
+    @SuppressLint("NewApi")
+    fun snoozeAlarm(minutes: Int = 5) {
         _isAlarmTriggered.value = false
-        repository.snoozeAlarm(snoozeMinutes)
+        val currentAlarmTime = LocalTime.parse(repository.alarmData.value.alarmTime)
+        val newTime = currentAlarmTime.plusMinutes(minutes.toLong())
+        repository.setAlarmTime(newTime.format(DateTimeFormatter.ofPattern("HH:mm")))
     }
 
-    fun setAlarm(time: String) {
-        repository.setAlarm(time)
+
+    fun setAlarmTime(time: String) {
+        repository.setAlarmTime(time)
     }
 }

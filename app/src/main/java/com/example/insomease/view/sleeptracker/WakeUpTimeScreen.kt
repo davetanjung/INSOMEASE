@@ -29,15 +29,20 @@ import androidx.navigation.NavController
 import com.example.insomease.R
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import com.example.insomease.repositories.WakeUpTimeRepository
 
 import com.example.insomease.viewmodel.WakeUpTimeViewModel
+import com.example.insomease.viewmodel.WakeUpTimeViewModelFactory
 
 @Composable
 fun WakeUpTimeScreen(
     navController: NavController? = null,
-    viewModel: WakeUpTimeViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: WakeUpTimeViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+        factory = WakeUpTimeViewModelFactory(WakeUpTimeRepository())
+    )
 ) {
     val wakeUpTimeModel by viewModel.wakeUpTime.collectAsState()
+
 
     Box(
         modifier = Modifier
@@ -62,9 +67,9 @@ fun WakeUpTimeScreen(
             Text(
                 text = "Set your wake up time",
                 color = Color.White,
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                fontSize = 24.sp,
+                fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily(Font(R.font.poppins)),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
@@ -97,8 +102,8 @@ fun WakeUpTimeScreen(
                 Text(
                     text = "Continue",
                     color = Color.White,
-                    fontFamily = FontFamily(Font(R.font.poppins)),
                     fontSize = 20.sp,
+                    fontFamily = FontFamily(Font(R.font.poppins)),
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -106,9 +111,9 @@ fun WakeUpTimeScreen(
             Text(
                 text = "Not now",
                 color = Color.White,
-                fontFamily = FontFamily(Font(R.font.poppins)),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily(Font(R.font.poppins)),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(top = 16.dp)
@@ -117,6 +122,7 @@ fun WakeUpTimeScreen(
         }
     }
 }
+
 
 
 @Composable
@@ -175,14 +181,13 @@ fun NumberScroller(
     selectedValue: Int,
     onValueChange: (Int) -> Unit
 ) {
-    val listState = rememberLazyListState()
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = selectedValue)
 
-    // Update selected value based on the central position
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex + 1 }
-            .collect { index ->
-                if (index in range) {
-                    onValueChange(index)
+            .collect { centeredIndex ->
+                if (centeredIndex in range) {
+                    onValueChange(centeredIndex)
                 }
             }
     }
@@ -201,25 +206,31 @@ fun NumberScroller(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(range.toList()) { value ->
-                val isInCenter = listState.layoutInfo.visibleItemsInfo.any {
-                    it.index == value && it.offset == listState.layoutInfo.viewportStartOffset
-                }
+                val isSelected = value == selectedValue
 
                 Text(
                     text = value.toString().padStart(2, '0'),
-                    color = if (value == selectedValue) Color.White else Color.Gray,
-                    fontFamily = FontFamily(Font(R.font.poppins)),
-                    fontSize = if (isInCenter) 33.sp else 35.sp,
-                    fontWeight = if (isInCenter) FontWeight.Normal else FontWeight.ExtraBold,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 1.dp),
+                    color = if (isSelected) Color.White else Color.Gray,
+                    fontSize = if (isSelected) 40.sp else 38.sp,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                    modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
             }
         }
+
+        // Overlay untuk separator tengah
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .align(Alignment.Center)
+                .background(Color.Transparent)
+        )
     }
 }
+
+
 
 
 @Preview(showBackground = true, showSystemUi = true)
