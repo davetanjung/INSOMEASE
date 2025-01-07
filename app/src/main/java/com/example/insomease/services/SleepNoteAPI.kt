@@ -8,10 +8,10 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface SleepNoteAPI {
-    @POST("sleep-notes")
+    @POST("/api/createSleepNote")
     suspend fun saveSleepNote(@Body sleepNote: SleepNoteApiModel): Response<SleepNoteResponse>
 
-    @GET("sleep-notes")
+    @GET("/api/getAllSleepNotes/:userId")
     suspend fun getAllSleepNotes(): Response<List<SleepNoteResponse>>
 }
 
