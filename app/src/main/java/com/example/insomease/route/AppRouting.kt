@@ -19,11 +19,15 @@ import com.example.insomease.view.authentication.LoginScreenView
 import com.example.insomease.view.onboarding.OnBoardingScreen
 import com.example.insomease.view.onboarding.OnBoardingScreen_2
 import com.example.insomease.view.onboarding.OnBoardingScreen_3
+import com.example.insomease.view.sleeptracker.WakeUpTimeScreen
 import com.example.insomease.view.authentication.RegisterScreenView
 import com.example.insomease.view.SplashScreen
 import com.example.insomease.view.home.ActivityDetailCard
 import com.example.insomease.viewModels.AuthenticationViewModel
 import com.example.insomease.viewModels.HomePageViewModel
+import com.example.insomease.viewmodel.WakeUpTimeViewModel
+//import com.example.insomease.viewmodel.WakeUpTimeViewModelFactory
+
 
 enum class listScreen(){
     SplashScreen,
@@ -33,13 +37,16 @@ enum class listScreen(){
     LoginScreen,
     SignUpScreen,
     HomeScreen,
-    ActivityDetailScreen
+    ActivityDetailScreen,
+    WakeUpTimeScreen
+
 }
 
 @Composable
 fun AppRouting(
     authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
-    homePageViewModel: HomePageViewModel = viewModel(factory = HomePageViewModel.Factory)
+    homePageViewModel: HomePageViewModel = viewModel(factory = HomePageViewModel.Factory),
+//    WakeUpTimeViewModel: WakeUpTimeViewModel = viewModel(factory = WakeUpTimeViewModel.Factory)
 ){
 
     val NavController = rememberNavController()
@@ -190,6 +197,28 @@ fun AppRouting(
                     authenticationViewModel
                 )
             }
+
+            composable(
+                route = listScreen.WakeUpTimeScreen.name,
+                enterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> fullWidth }, // Starts from the right
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                },
+                exitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -fullWidth }, // Exits to the left
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                },
+            ) {
+                WakeUpTimeScreen(
+                    navController = NavController
+                )
+            }
+
+
 
 
 //            ../RestaurantDetail/id

@@ -40,10 +40,10 @@ import com.example.insomease.viewmodel.SleepNoteViewModelFactory
 @Composable
 fun SleepNoteScreen(
 ) {
-    val appContainer = (LocalContext.current.applicationContext as LunaireApplication)
-        val viewModel: SleepNoteViewModel = viewModel(
-//            factory = SleepNoteViewModelFactory(appContainer.sleepNoteRepository)
-        )
+//    val appContainer = (LocalContext.current.applicationContext as LunaireApplication)
+////    val viewModel: SleepNoteViewModel = viewModel(
+////        factory = SleepNoteViewModelFactory(appContainer.sleepNoteRepository)
+////    )
 
 
     // State for form input
@@ -54,10 +54,9 @@ fun SleepNoteScreen(
 
 //    val sleepNotes by viewModel.sleepNotes.observeAsState(emptyList())
 
-    // Load sleep notes when the screen is first displayed
-    LaunchedEffect(Unit) {
-        viewModel.getAllSleepNotes()
-    }
+//    LaunchedEffect(Unit) {
+//        viewModel.getAllSleepNotes()
+//    }
 
     Column(
         modifier = Modifier
@@ -103,7 +102,7 @@ fun SleepNoteScreen(
                     mood = mood,
                     sleepHours = 8.0f // Misalnya, menggunakan nilai default
                 )
-                viewModel.saveSleepNote(sleepNote)
+//                viewModel.saveSleepNote(sleepNote)
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9C92F8)) // Button color
@@ -111,12 +110,12 @@ fun SleepNoteScreen(
             Text("Save", color = Color.White)
         }
 
-        // Menampilkan daftar sleep notes
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+//        // Menampilkan daftar sleep notes
+//        LazyColumn(modifier = Modifier.fillMaxSize()) {
 //            items(sleepNotes) { note ->
 //                HistoryItem(note = note)
 //            }
-        }
+//        }
 
     }
 }

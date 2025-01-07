@@ -15,9 +15,9 @@ import java.time.format.DateTimeFormatter
 
 class AlarmViewModel(private val repository: AlarmRepository = AlarmRepository()) : ViewModel() {
 
-    // Untuk memantau apakah alarm sudah aktif
     private val _isAlarmTriggered = MutableStateFlow(false)
-    val isAlarmTriggered: StateFlow<Boolean> = _isAlarmTriggered
+    val isAlarmTriggered: StateFlow<Boolean> get() = _isAlarmTriggered
+
 
     val currentTime: StateFlow<String> = repository.alarmData.map { getCurrentTime() }.stateIn(
         viewModelScope,
@@ -31,9 +31,26 @@ class AlarmViewModel(private val repository: AlarmRepository = AlarmRepository()
         initialValue = repository.alarmData.value.alarmTime
     )
 
+
+
     init {
-        monitorTime()
+        updateTimeEverySecond()
+        monitorAlarmTrigger()
     }
+
+    private fun monitorAlarmTrigger() {
+        viewModelScope.launch {
+            while (true) {
+                val currentTime = getCurrentTime()
+                val alarmTime = repository.alarmData.value.alarmTime
+                if (currentTime == alarmTime) {
+                    _isAlarmTriggered.value = true
+                }
+                delay(1000)
+            }
+        }
+    }
+
 
     @SuppressLint("NewApi")
     private fun getCurrentTime(): String {
@@ -41,13 +58,11 @@ class AlarmViewModel(private val repository: AlarmRepository = AlarmRepository()
         return LocalTime.now().format(formatter)
     }
 
-    private fun monitorTime() {
+    private fun updateTimeEverySecond() {
         viewModelScope.launch {
             while (true) {
-                val now = getCurrentTime()
-                if (now == repository.alarmData.value.alarmTime) {
-                    _isAlarmTriggered.value = true
-                }
+                val currentData = repository.alarmData.value
+                repository.setAlarmTime(currentData.alarmTime) // Menyimpan waktu terkini
                 delay(1000)
             }
         }
@@ -59,14 +74,11 @@ class AlarmViewModel(private val repository: AlarmRepository = AlarmRepository()
 
     @SuppressLint("NewApi")
     fun snoozeAlarm(minutes: Int = 5) {
-        _isAlarmTriggered.value = false
+        dismissAlarm()
         val currentAlarmTime = LocalTime.parse(repository.alarmData.value.alarmTime)
         val newTime = currentAlarmTime.plusMinutes(minutes.toLong())
         repository.setAlarmTime(newTime.format(DateTimeFormatter.ofPattern("HH:mm")))
     }
 
 
-    fun setAlarmTime(time: String) {
-        repository.setAlarmTime(time)
-    }
 }

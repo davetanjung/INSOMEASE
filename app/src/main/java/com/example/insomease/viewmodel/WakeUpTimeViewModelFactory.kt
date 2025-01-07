@@ -2,16 +2,18 @@ package com.example.insomease.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.insomease.repositories.AlarmRepository
 import com.example.insomease.repositories.WakeUpTimeRepository
 
 class WakeUpTimeViewModelFactory(
-    private val repository: WakeUpTimeRepository
+    private val wakeUpTimeRepository: WakeUpTimeRepository,
+    private val alarmRepository: AlarmRepository // Parameter tambahan
 ) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(WakeUpTimeViewModel::class.java)) {
-            return WakeUpTimeViewModel(repository) as T
+            return WakeUpTimeViewModel(wakeUpTimeRepository, alarmRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+

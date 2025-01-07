@@ -41,7 +41,9 @@ import androidx.navigation.NavController
 import com.example.insomease.R
 import com.example.insomease.route.listScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.insomease.view.sleeptracker.AlarmScreen
 import com.example.insomease.viewModels.AuthenticationViewModel
+import com.example.insomease.viewmodel.AlarmViewModel
 
 @Composable
 fun LoginScreenView(
@@ -159,6 +161,7 @@ fun LoginScreenView(
             Button(
                 onClick = {
                     navController?.let {
+
                         authenticationViewModel.loginUser(navController)
                     }
                 },

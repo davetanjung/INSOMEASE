@@ -47,7 +47,7 @@ class DefaultAppContainer(
     private val userDataStore: DataStore<Preferences>
 ): AppContainer {
     // change it to your own local ip please
-    private val baseUrl = "http://192.168.0.106:3000/"
+    private val baseUrl = "http://192.168.18.1/"
 
     // RETROFIT SERVICE
     // delay object creation until needed using lazy

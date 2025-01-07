@@ -29,6 +29,7 @@ import androidx.navigation.NavController
 import com.example.insomease.R
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import com.example.insomease.repositories.AlarmRepository
 import com.example.insomease.repositories.WakeUpTimeRepository
 
 import com.example.insomease.viewmodel.WakeUpTimeViewModel
@@ -38,12 +39,13 @@ import com.example.insomease.viewmodel.WakeUpTimeViewModelFactory
 fun WakeUpTimeScreen(
     navController: NavController? = null,
     viewModel: WakeUpTimeViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-        factory = WakeUpTimeViewModelFactory(WakeUpTimeRepository())
+        factory = WakeUpTimeViewModelFactory(
+            wakeUpTimeRepository = WakeUpTimeRepository(),
+            alarmRepository = AlarmRepository() // Tambahkan parameter ini
+        )
     )
 ) {
     val wakeUpTimeModel by viewModel.wakeUpTime.collectAsState()
-
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -88,10 +90,17 @@ fun WakeUpTimeScreen(
 
             Spacer(modifier = Modifier.height(90.dp))
 
-            // Continue Button
             Button(
                 onClick = {
-                    navController?.navigate("nextScreen") // Ganti dengan rute navigasi Anda
+                    // Simpan waktu alarm yang dipilih
+                    viewModel.setWakeUpTime(wakeUpTimeModel.selectedTime)
+
+                    // Periksa apakah alarm berhasil disimpan
+                    if (viewModel.isAlarmSaved()) {
+                        navController?.navigate("alarmScreen") // Navigasi jika sukses
+                    } else {
+                        println("Alarm gagal disimpan")
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388)),
                 modifier = Modifier
@@ -108,6 +117,8 @@ fun WakeUpTimeScreen(
                 )
             }
 
+
+
             Text(
                 text = "Not now",
                 color = Color.White,
@@ -119,9 +130,22 @@ fun WakeUpTimeScreen(
                     .padding(top = 16.dp)
                     .clickable { navController?.popBackStack() }
             )
+
+            val isAlarmSaved = viewModel.isAlarmSaved()
+
+            Text(
+                text = if (isAlarmSaved) "Alarm has been saved!" else "No alarm saved yet.",
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily(Font(R.font.poppins)),
+                modifier = Modifier.padding(top = 16.dp)
+            )
         }
+
     }
-}
+    }
+
 
 
 
