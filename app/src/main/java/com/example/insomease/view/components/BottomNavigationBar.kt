@@ -2,6 +2,7 @@ package com.example.insomease.view.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,84 +21,80 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.insomease.R
+import com.example.insomease.route.listScreen
+import com.example.insomease.viewModels.HomePageViewModel
 
 @Composable
 fun BottomNavigationBar(
-    modifier: Modifier,
-    currentScreen: String
+    modifier: Modifier = Modifier,
+    currentScreen: String,
+    navController: NavController? = null,
+    homePageViewModel: HomePageViewModel = viewModel()
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(Color(0xFF0D1527))
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Image(
-                painter = painterResource(
-                    if (currentScreen == "home")
-                        R.drawable.house_selected
-                    else
-                        R.drawable.house
-                ),
-                contentDescription = "home",
-                modifier = Modifier.size(24.dp)
-            )
-            Text(
-                text = "Home",
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                fontSize = 12.sp,
-                color = Color.White
-            )
-        }
+        NavigationButton(
+            label = "Home",
+            iconResId = if (currentScreen == "home") R.drawable.house_selected else R.drawable.house,
+            onClick = {
+                navController?.navigate(listScreen.HomeScreen.name + "/${homePageViewModel.currentUserId}")
+            }
+        )
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Image(
-                painter = painterResource(
-                    if (currentScreen == "sleep")
-                        R.drawable.bed
-                    else
-                        R.drawable.sleep
-                ),
-                contentDescription = "sleep tracker",
-                modifier = Modifier.size(24.dp)
-            )
-            androidx.compose.material3.Text(
-                text = "Sleep",
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                fontSize = 12.sp,
-                color = Color.White
-            )
-        }
+        NavigationButton(
+            label = "Sleep",
+            iconResId = if (currentScreen == "sleep") R.drawable.bed else R.drawable.sleep,
+            onClick = {
+                navController?.navigate(listScreen.WakeUpTimeScreen.name)
+            }
+        )
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Image(
-                painter = painterResource(R.drawable.brain), // Replace with actual icon
-                contentDescription = "relax",
-                modifier = Modifier.size(24.dp)
-            )
-            androidx.compose.material3.Text(
-                text = "Relax",
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                fontSize = 12.sp,
-                color = Color.White
-            )
-        }
+        NavigationButton(
+            label = "Relax",
+            iconResId = R.drawable.brain,
+            onClick = {
+                // Add appropriate navigation or action
+            }
+        )
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Image(
-                painter = painterResource(R.drawable.person_3_sequence), // Replace with actual icon
-                contentDescription = "Profile",
-                modifier = Modifier.size(24.dp)
-            )
-            androidx.compose.material3.Text(
-                text = "Profile",
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                fontSize = 12.sp,
-                color = Color.White
-            )
-        }
+        NavigationButton(
+            label = "Profile",
+            iconResId = R.drawable.person_3_sequence,
+            onClick = {
+                // Add appropriate navigation or action
+            }
+        )
+    }
+}
+
+@Composable
+fun NavigationButton(
+    label: String,
+    iconResId: Int,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable(onClick = onClick)
+    ) {
+        Image(
+            painter = painterResource(id = iconResId),
+            contentDescription = label,
+            modifier = Modifier.size(24.dp)
+        )
+        Text(
+            text = label,
+            fontFamily = FontFamily(Font(R.font.poppins)),
+            fontSize = 12.sp,
+            color = Color.White
+        )
     }
 }

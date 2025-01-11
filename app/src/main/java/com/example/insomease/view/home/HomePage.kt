@@ -130,10 +130,12 @@ fun HomePage(
                     }
                 }
             }
-            BottomNavigationBar(
-                modifier = Modifier,
-                currentScreen = "home"
-            )
+                BottomNavigationBar(
+                    modifier = Modifier,
+                    currentScreen = "home",
+                    homePageViewModel = homePageViewModel,
+                    navController = navController
+                )
         }
 
         // Show Popup if state is true

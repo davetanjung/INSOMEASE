@@ -161,7 +161,6 @@ fun LoginScreenView(
             Button(
                 onClick = {
                     navController?.let {
-
                         authenticationViewModel.loginUser(navController)
                     }
                 },
