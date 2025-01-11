@@ -1,11 +1,25 @@
 package com.example.insomease.view.sleeptracker
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -20,24 +34,24 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.insomease.R
 import com.example.insomease.viewmodel.AlarmViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AlarmScreen(  alarmViewModel: AlarmViewModel = viewModel()) {
-    val currentTime by alarmViewModel.currentTime.collectAsState()
-    val alarmTime by alarmViewModel.alarmTime.collectAsState()
-    val isAlarmTriggered by alarmViewModel.isAlarmTriggered.collectAsState()
+fun AlarmScreen(
+    viewModel: AlarmViewModel
+) {
+    val currentTime by viewModel.currentTime.collectAsState()
+    val alarmTime by viewModel.alarmTime.collectAsState()
+    val isAlarmTriggered by viewModel.isAlarmTriggered.collectAsState()
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
-        // Latar belakang gambar
+        // Background Image
         Image(
             painter = painterResource(R.drawable.sleep_tracker_screen),
             contentDescription = "Background Image",
@@ -52,13 +66,13 @@ fun AlarmScreen(  alarmViewModel: AlarmViewModel = viewModel()) {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Bagian teks di atas tombol
+            // Text content at the top
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f), // Menjadikan area ini fleksibel
+                    .weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center // Posisikan di tengah
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = buildAnnotatedString {
@@ -70,9 +84,9 @@ fun AlarmScreen(  alarmViewModel: AlarmViewModel = viewModel()) {
                                 fontSize = 48.sp,
                                 fontWeight = FontWeight.Bold,
                                 shadow = Shadow(
-                                    color = Color(0xFFACACE7), // Warna glow ungu cerah
-                                    blurRadius = 30f,          // Radius blur lebih besar untuk efek glow
-                                    offset = Offset(1f, 1f)    // Offset untuk memberikan kedalaman pada shadow
+                                    color = Color(0xFFACACE7),
+                                    blurRadius = 30f,
+                                    offset = Offset(1f, 1f)
                                 )
                             )
                         ) {
@@ -86,8 +100,6 @@ fun AlarmScreen(  alarmViewModel: AlarmViewModel = viewModel()) {
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
-
-
 
                 Text(
                     text = "Alarm Time: $alarmTime",
@@ -109,14 +121,10 @@ fun AlarmScreen(  alarmViewModel: AlarmViewModel = viewModel()) {
                 )
             }
 
-            // Spacer untuk memberikan jarak antara konten dan tombol
             Spacer(modifier = Modifier.height(90.dp))
 
-            // Tombol di bagian bawah
             Button(
-                onClick = {
-                    // Aksi ketika tombol ditekan
-                },
+                onClick = { /* Handle quit action */ },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388)),
                 shape = RoundedCornerShape(30.dp),
                 modifier = Modifier
@@ -132,17 +140,14 @@ fun AlarmScreen(  alarmViewModel: AlarmViewModel = viewModel()) {
                 )
             }
         }
-
-
     }
-
 
     if (isAlarmTriggered) {
         AlertDialog(
-            onDismissRequest = { alarmViewModel.dismissAlarm() },
+            onDismissRequest = { viewModel.dismissAlarm() },
             confirmButton = {
                 Button(
-                    onClick = { alarmViewModel.dismissAlarm() },
+                    onClick = { viewModel.dismissAlarm() },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388))
                 ) {
                     Text("Dismiss", color = Color.White)
@@ -150,7 +155,7 @@ fun AlarmScreen(  alarmViewModel: AlarmViewModel = viewModel()) {
             },
             dismissButton = {
                 Button(
-                    onClick = { alarmViewModel.snoozeAlarm() },
+                    onClick = { viewModel.snoozeAlarm() },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388))
                 ) {
                     Text("Snooze", color = Color.White)
@@ -176,23 +181,16 @@ fun AlarmScreen(  alarmViewModel: AlarmViewModel = viewModel()) {
                     textAlign = TextAlign.Center
                 )
             },
-            containerColor = Color(0xFF111B38), // Background color (dark blue)
+            containerColor = Color(0xFF111B38),
             tonalElevation = 8.dp,
-            shape = RoundedCornerShape(16.dp), // Rounded corners
+            shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .padding(16.dp)
                 .border(
                     width = 2.dp,
-                    color = Color(0xFFB3BFFF), // Glow-like border color
-                    shape = RoundedCornerShape(16.dp) // Same shape as container
+                    color = Color(0xFFB3BFFF),
+                    shape = RoundedCornerShape(16.dp)
                 )
         )
     }
-
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun AlarmPreview() {
-    AlarmScreen()
 }

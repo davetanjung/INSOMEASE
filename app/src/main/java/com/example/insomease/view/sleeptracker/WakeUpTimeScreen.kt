@@ -3,7 +3,16 @@ package com.example.insomease.view.sleeptracker
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -11,7 +20,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,33 +38,21 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.insomease.R
-import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
-import com.example.insomease.repositories.AlarmRepository
-import com.example.insomease.repositories.WakeUpTimeRepository
-
 import com.example.insomease.viewmodel.WakeUpTimeViewModel
-import com.example.insomease.viewmodel.WakeUpTimeViewModelFactory
 
 @Composable
 fun WakeUpTimeScreen(
     navController: NavController? = null,
-    viewModel: WakeUpTimeViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-        factory = WakeUpTimeViewModelFactory(
-            wakeUpTimeRepository = WakeUpTimeRepository(),
-            alarmRepository = AlarmRepository() // Tambahkan parameter ini
-        )
-    )
+    viewModel: WakeUpTimeViewModel
 ) {
-    val wakeUpTimeModel by viewModel.wakeUpTime.collectAsState()
+    val wakeUpTime by viewModel.wakeUpTime.collectAsState()
+
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         // Background Image
         Image(
@@ -80,8 +84,8 @@ fun WakeUpTimeScreen(
 
             // Scrollable Time Picker
             TimePicker(
-                initialHour = wakeUpTimeModel.selectedTime.split(":")[0].toInt(),
-                initialMinute = wakeUpTimeModel.selectedTime.split(":")[1].toInt(),
+                initialHour = wakeUpTime.split(":")[0].toInt(),
+                initialMinute = wakeUpTime.split(":")[1].toInt(),
                 onTimeSelected = { hour, minute ->
                     val formattedTime = String.format("%02d:%02d", hour, minute)
                     viewModel.setWakeUpTime(formattedTime)
@@ -92,14 +96,11 @@ fun WakeUpTimeScreen(
 
             Button(
                 onClick = {
-                    // Simpan waktu alarm yang dipilih
-                    viewModel.setWakeUpTime(wakeUpTimeModel.selectedTime)
-
-                    // Periksa apakah alarm berhasil disimpan
-                    if (viewModel.isAlarmSaved()) {
-                        navController?.navigate("alarmScreen") // Navigasi jika sukses
-                    } else {
-                        println("Alarm gagal disimpan")
+                    // Save wake up time and navigate to alarm screen
+                    viewModel.setWakeUpTime(wakeUpTime)
+                    navController?.navigate("alarm_screen") {
+                        // Optional: Pop up to start destination to avoid back stack accumulation
+                        popUpTo("wake_up_time_screen") { inclusive = true }
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388)),
@@ -117,8 +118,6 @@ fun WakeUpTimeScreen(
                 )
             }
 
-
-
             Text(
                 text = "Not now",
                 color = Color.White,
@@ -130,33 +129,17 @@ fun WakeUpTimeScreen(
                     .padding(top = 16.dp)
                     .clickable { navController?.popBackStack() }
             )
-
-            val isAlarmSaved = viewModel.isAlarmSaved()
-
-            Text(
-                text = if (isAlarmSaved) "Alarm has been saved!" else "No alarm saved yet.",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                modifier = Modifier.padding(top = 16.dp)
-            )
         }
-
     }
-    }
-
-
+}
 
 
 @Composable
 fun TimePicker(
-    initialHour: Int,
-    initialMinute: Int,
-    onTimeSelected: (Int, Int) -> Unit
+    initialHour: Int, initialMinute: Int, onTimeSelected: (Int, Int) -> Unit
 ) {
-    var selectedHour by remember { mutableStateOf(initialHour) }
-    var selectedMinute by remember { mutableStateOf(initialMinute) }
+    var selectedHour by remember { mutableIntStateOf(initialHour) }
+    var selectedMinute by remember { mutableIntStateOf(initialMinute) }
 
     Row(
         modifier = Modifier
@@ -167,14 +150,10 @@ fun TimePicker(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Hour Pick
-        NumberScroller(
-            range = 0..23,
-            selectedValue = selectedHour,
-            onValueChange = {
-                selectedHour = it
-                onTimeSelected(selectedHour, selectedMinute)
-            }
-        )
+        NumberScroller(range = 0..23, selectedValue = selectedHour, onValueChange = {
+            selectedHour = it
+            onTimeSelected(selectedHour, selectedMinute)
+        })
 
         // Separator
         Text(
@@ -186,34 +165,26 @@ fun TimePicker(
         )
 
         // Minute Pick
-        NumberScroller(
-            range = 0..59,
-            selectedValue = selectedMinute,
-            onValueChange = {
-                selectedMinute = it
-                onTimeSelected(selectedHour, selectedMinute)
-            }
-        )
+        NumberScroller(range = 0..59, selectedValue = selectedMinute, onValueChange = {
+            selectedMinute = it
+            onTimeSelected(selectedHour, selectedMinute)
+        })
     }
 }
 
 
-
 @Composable
 fun NumberScroller(
-    range: IntRange,
-    selectedValue: Int,
-    onValueChange: (Int) -> Unit
+    range: IntRange, selectedValue: Int, onValueChange: (Int) -> Unit
 ) {
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = selectedValue)
 
     LaunchedEffect(listState) {
-        snapshotFlow { listState.firstVisibleItemIndex + 1 }
-            .collect { centeredIndex ->
-                if (centeredIndex in range) {
-                    onValueChange(centeredIndex)
-                }
+        snapshotFlow { listState.firstVisibleItemIndex + 1 }.collect { centeredIndex ->
+            if (centeredIndex in range) {
+                onValueChange(centeredIndex)
             }
+        }
     }
 
     Box(
@@ -252,13 +223,4 @@ fun NumberScroller(
                 .background(Color.Transparent)
         )
     }
-}
-
-
-
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun WakeUpTimeScreenPreview() {
-    WakeUpTimeScreen()
 }

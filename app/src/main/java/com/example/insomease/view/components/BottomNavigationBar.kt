@@ -2,6 +2,7 @@ package com.example.insomease.view.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,14 +19,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.insomease.R
+import com.example.insomease.view.sleeptracker.SleepNoteScreen
 
 @Composable
 fun BottomNavigationBar(
     modifier: Modifier,
-    currentScreen: String
+    currentScreen: String,
+    navController: NavController
 ) {
     Row(
         modifier = Modifier
@@ -53,7 +58,9 @@ fun BottomNavigationBar(
             )
         }
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .clickable { navController.navigate("WakeUpTimeScreen") }) {
             Image(
                 painter = painterResource(
                     if (currentScreen == "sleep")

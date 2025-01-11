@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.insomease.data.UserPreferencesRepository
 import com.example.insomease.models.ActivityUserModel
 import com.example.insomease.view.home.HomePage
 import com.example.insomease.view.authentication.LoginScreenView
@@ -25,7 +26,10 @@ import com.example.insomease.view.SplashScreen
 import com.example.insomease.view.home.ActivityDetailCard
 import com.example.insomease.viewModels.AuthenticationViewModel
 import com.example.insomease.viewModels.HomePageViewModel
+import com.example.insomease.viewmodel.AlarmViewModel
 import com.example.insomease.viewmodel.WakeUpTimeViewModel
+import com.example.insomease.viewmodel.WakeUpTimeViewModelFactory
+
 //import com.example.insomease.viewmodel.WakeUpTimeViewModelFactory
 
 
@@ -39,17 +43,17 @@ enum class listScreen(){
     HomeScreen,
     ActivityDetailScreen,
     WakeUpTimeScreen
-
 }
 
 @Composable
 fun AppRouting(
     authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
     homePageViewModel: HomePageViewModel = viewModel(factory = HomePageViewModel.Factory),
+    userPreferencesRepository: UserPreferencesRepository
 //    WakeUpTimeViewModel: WakeUpTimeViewModel = viewModel(factory = WakeUpTimeViewModel.Factory)
 ){
-
     val NavController = rememberNavController()
+    val wakeUpTimeViewModel: WakeUpTimeViewModel = viewModel(factory = WakeUpTimeViewModelFactory(userPreferencesRepository))
 
     Scaffold { innerPadding ->
         NavHost(
@@ -214,7 +218,8 @@ fun AppRouting(
                 },
             ) {
                 WakeUpTimeScreen(
-                    navController = NavController
+                    navController = NavController,
+                    viewModel = wakeUpTimeViewModel
                 )
             }
 
