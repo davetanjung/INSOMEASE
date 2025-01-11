@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,7 +37,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -47,6 +51,115 @@ import com.example.insomease.models.SleepNoteModel
 import com.example.insomease.viewmodel.SleepNoteViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun SleepNoteScreen(
+    notes: List<SleepNoteModel>,
+    onSaveSuccess: () -> Unit,
+    sleepNoteViewModel: SleepNoteViewModel
+) {
+    val context = LocalContext.current
+    var entryDate by remember { mutableStateOf(LocalDateTime.now()) }
+    var bedTime by remember { mutableStateOf(LocalDateTime.now()) }
+    var wakeTime by remember { mutableStateOf(LocalDateTime.now().plusHours(8)) }
+    var mood by remember { mutableStateOf("Neutral") }
+    var isSaved by remember { mutableStateOf(false) }
+
+    val notes by sleepNoteViewModel.sleepNotes.collectAsState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF030F25))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        Spacer(modifier = Modifier.height(5.dp))
+
+        Text(
+            text = "Sleep Note",
+            fontFamily = FontFamily(Font(R.font.poppins)),
+            fontWeight = FontWeight.Bold,
+            fontSize = 30.sp,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+
+        DateTimePickers(
+            entryDate = entryDate,
+            bedTime = bedTime,
+            wakeTime = wakeTime,
+            onEntryDateChanged = { entryDate = it },
+            onBedTimeChanged = { bedTime = it },
+            onWakeTimeChanged = { wakeTime = it }
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        MoodSelector(
+            moods = listOf("Happy", "Calm", "Tired", "Anxious", "Neutral"),
+            selectedMood = mood,
+            onMoodSelected = { mood = it }
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // History item with limited height
+        HistoryItem(notes)
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Save and Next buttons
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            if (!isSaved) {
+                Button(
+                    onClick = {
+                        sleepNoteViewModel.createSleepNote(
+                            entryDate = entryDate,
+                            bedTime = bedTime,
+                            wakeTime = wakeTime,
+                            mood = mood,
+                            userId = 1,
+                            context = context
+                        )
+                        isSaved = true // Update state to show "Next" button
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9C92F8))
+                ) {
+                    Text(
+                        text = "Save",
+                        fontSize = 20.sp,
+                        color = Color.White
+                    )
+                }
+            } else {
+                Button(
+                    onClick = { onSaveSuccess() },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388))
+                ) {
+                    Text(
+                        text = "Next",
+                        fontSize = 20.sp,
+                        color = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -68,6 +181,15 @@ fun DateTimePickers(
             .padding(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        Text(
+            text = "Enter tonight's Date 📅",
+            fontFamily = FontFamily(Font(R.font.poppins)),
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            color = Color.White,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.fillMaxWidth()
+        )
         // Entry Date
         Button(
             onClick = {
@@ -86,14 +208,33 @@ fun DateTimePickers(
                     entryDate.dayOfMonth
                 ).show()
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 2.dp,
+                    color = Color(0xFFACACE7), // Warna ungu
+                    shape = RoundedCornerShape(8.dp)
+                ),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
+                containerColor = Color(0xFF030F25), // Warna biru
+                contentColor = Color.White
             )
         ) {
-            Text("Date: ${entryDate.format(dateFormatter)}")
+            Text("${entryDate.format(dateFormatter)}",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = Color.White,)
         }
+
+        Text(
+            text = "Enter your Bed Time 🌚",
+            fontFamily = FontFamily(Font(R.font.poppins)),
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            color = Color.White,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         // Bed Time
         Button(
@@ -112,14 +253,33 @@ fun DateTimePickers(
                     true
                 ).show()
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 2.dp,
+                    color = Color(0xFFACACE7), // Warna ungu
+                    shape = RoundedCornerShape(8.dp)
+                ),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
+                containerColor = Color(0xFF030F25), // Warna biru
+                contentColor = Color.White
             )
         ) {
-            Text("Bed Time: ${bedTime.format(timeFormatter)}")
+            Text("${bedTime.format(timeFormatter)}",
+                    fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = Color.White,)
         }
+
+        Text(
+            text = "Enter your Wake Time 🌞",
+            fontFamily = FontFamily(Font(R.font.poppins)),
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            color = Color.White,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         // Wake Time
         Button(
@@ -138,98 +298,48 @@ fun DateTimePickers(
                     true
                 ).show()
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 2.dp,
+                    color = Color(0xFFACACE7), // Warna ungu
+                    shape = RoundedCornerShape(8.dp)
+                ),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
+                containerColor = Color(0xFF030F25), // Warna biru
+                contentColor = Color.White
             )
         ) {
-            Text("Wake Time: ${wakeTime.format(timeFormatter)}")
+            Text("${wakeTime.format(timeFormatter)}",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = Color.White,)
         }
     }
 }
 
-// Update SleepNoteScreen to use the new DateTimePickers
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun SleepNoteScreen(
-    sleepNoteViewModel: SleepNoteViewModel,
-    onSaveSuccess: () -> Unit
-) {
-    val context = LocalContext.current
-    var entryDate by remember { mutableStateOf(LocalDateTime.now()) }
-    var bedTime by remember { mutableStateOf(LocalDateTime.now()) }
-    var wakeTime by remember { mutableStateOf(LocalDateTime.now().plusHours(8)) }
-    var mood by remember { mutableStateOf("Neutral") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // Date and Time Pickers
-        DateTimePickers(
-            entryDate = entryDate,
-            bedTime = bedTime,
-            wakeTime = wakeTime,
-            onEntryDateChanged = { entryDate = it },
-            onBedTimeChanged = { bedTime = it },
-            onWakeTimeChanged = { wakeTime = it }
-        )
 
-        // Mood selector
-        MoodSelector(
-            moods = listOf("Happy", "Calm", "Tired", "Anxious", "Neutral"),
-            selectedMood = mood,
-            onMoodSelected = { mood = it }
-        )
-
-        // Save button
-        Button(
-            onClick = {
-                sleepNoteViewModel.createSleepNote(
-                    entryDate = entryDate,
-                    bedTime = bedTime,
-                    wakeTime = wakeTime,
-                    mood = mood,
-                    userId = 1,
-                    context = context
-                )
-                onSaveSuccess()
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9C92F8))
-        ) {
-            Text("Save", color = Color.White)
-        }
-    }
-}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HistoryItem(sleepNoteViewModel: SleepNoteViewModel) {
-    val notes by sleepNoteViewModel.sleepNotes.collectAsState()
+fun HistoryItem(notes: List<SleepNoteModel>) {
     val dateFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-
-    LaunchedEffect(Unit) {
-        sleepNoteViewModel.loadSleepNotes(userId = 1)
-    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .border(
                 width = 2.dp,
-                color = Color(0xFF9C92F8),
+                color = Color(0xFFACACE7),
                 shape = RoundedCornerShape(8.dp)
             )
             .background(Color(0xFF030F25), RoundedCornerShape(8.dp))
             .padding(16.dp)
     ) {
         Text(
-            text = "Sleep Note History",
+            text = "Sleep Note History 🗃️",
             fontFamily = FontFamily(Font(R.font.poppins)),
             fontWeight = FontWeight.ExtraBold,
             fontSize = 20.sp,
@@ -238,18 +348,24 @@ fun HistoryItem(sleepNoteViewModel: SleepNoteViewModel) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        LazyColumn {
+        // Membatasi tinggi LazyColumn
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 145.dp) // Batasi tinggi maksimal 200dp
+        ) {
             items(items = notes, key = { note -> note.id }) { note ->
                 NoteItem(
                     note = note,
                     dateFormatter = dateFormatter,
                     timeFormatter = timeFormatter
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp)) // Jarak antar item
             }
         }
     }
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -262,7 +378,11 @@ private fun NoteItem(
     val bedTime = SleepNoteModel.toLocalDateTime(note.bed_time)
     val wakeTime = SleepNoteModel.toLocalDateTime(note.wake_time)
 
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
         Text(
             text = "Date: ${entryDate.format(dateFormatter)}",
             fontFamily = FontFamily(Font(R.font.poppins)),
@@ -271,11 +391,7 @@ private fun NoteItem(
             color = Color.White
         )
         Text(
-            text = "Bed Time: ${bedTime.format(timeFormatter)} || Wake Time: ${
-                wakeTime.format(
-                    timeFormatter
-                )
-            }",
+            text = "Bed Time: ${bedTime.format(timeFormatter)} || Wake Time: ${wakeTime.format(timeFormatter)}",
             fontFamily = FontFamily(Font(R.font.poppins)),
             fontSize = 14.sp,
             color = Color.White
@@ -295,8 +411,22 @@ private fun NoteItem(
     }
 }
 
+
 @Composable
 fun MoodSelector(moods: List<String>, selectedMood: String, onMoodSelected: (String) -> Unit) {
+    Text(
+        text = "Select your mood:",
+        fontFamily = FontFamily(Font(R.font.poppins)),
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp,
+        color = Color.White,
+        textAlign = TextAlign.Start,
+        modifier = Modifier.fillMaxWidth()
+
+    )
+    Spacer(modifier = Modifier.height(20.dp))
+
+
     Row(
         modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -311,8 +441,7 @@ fun MoodSelector(moods: List<String>, selectedMood: String, onMoodSelected: (Str
                     )
                     .border(
                         width = 2.dp,
-                        color = if (mood == selectedMood) Color(0xFF9C92F8) else Color(
-                            0xFF9C92F8
+                        color = if (mood == selectedMood) Color(0xFFACACE7) else Color(0xFFACACE7
                         ),
                         shape = CircleShape
                     )
@@ -322,6 +451,7 @@ fun MoodSelector(moods: List<String>, selectedMood: String, onMoodSelected: (Str
                     text = mood,
                     fontFamily = FontFamily(Font(R.font.poppins)),
                     fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
                     color = Color.White,
                     textAlign = TextAlign.Center
                 )
