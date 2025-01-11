@@ -10,11 +10,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,14 +25,14 @@ fun ActivityPopUpCard(homePageViewModel: HomePageViewModel) {
 
     val token by homePageViewModel.token.collectAsState()
 
-    // Initialize states for form fields
     var name by remember { mutableStateOf(homePageViewModel.nameInput) }
     var categoryId by remember { mutableStateOf(homePageViewModel.categoryId) }
 
+//    blm masuk viewmodel
     var expanded by remember { mutableStateOf(false) }
     var selectedCategoryName by remember { mutableStateOf("Select category") }
 
-    // Categories list from ViewModel
+    // Categories list dari ViewModel
     val categories by homePageViewModel.categories
 
     LaunchedEffect(Unit) {
@@ -134,7 +132,7 @@ fun ActivityPopUpCard(homePageViewModel: HomePageViewModel) {
                             tint = Color.Gray
                         )
                     }
-                    // Modify DropdownMenu positioning
+
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },

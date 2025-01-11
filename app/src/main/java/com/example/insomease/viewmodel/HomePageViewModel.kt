@@ -16,29 +16,22 @@ import com.example.insomease.LunaireApplication
 import com.example.insomease.models.ActivityModel
 import com.example.insomease.models.ActivityRequest
 import com.example.insomease.models.ActivityUserModel
-import com.example.insomease.models.GeneralResponseModel
-import com.example.insomease.models.GetActivityResponse
 import com.example.insomease.models.GetAllCategoryResponse
-import com.example.insomease.models.UserResponse
 import com.example.insomease.repositories.ActivityRepository
 import com.example.insomease.repositories.CategoryRepository
 import com.example.insomease.repositories.UserRepository
-import com.example.insomease.route.listScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -129,7 +122,7 @@ class HomePageViewModel(
     }
 
     val token: StateFlow<String> = userRepository.currentUserToken
-        .map { it.ifBlank { "Guest" } }
+//        .map { it.ifBlank { "Guest" } }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -137,7 +130,7 @@ class HomePageViewModel(
         )
 
     val username: StateFlow<String> = userRepository.currentUsername
-        .map { it.ifBlank { "Guest" } }
+//        .map { it.ifBlank { "Guest" } }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -152,30 +145,29 @@ class HomePageViewModel(
         showNextPopUp = !showNextPopUp
     }
 
-    fun updateSelectedDate(offset: Int) {
-        val calendar = Calendar.getInstance()
-        calendar.time = _selectedDate.value
-        calendar.add(Calendar.DATE, offset)
-        _selectedDate.value = calendar.time
-
-        // Refresh activities for the selected date
-        fetchActivitiesForDate(_selectedDate.value)
-    }
-
-    private fun fetchActivitiesForDate(date: Date) {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val formattedDate = dateFormat.format(date)
-
-        viewModelScope.launch {
-            val userId = currentUserId.value
-            fetchActivities(token = token.value, id = userId, specificDate = formattedDate)
-        }
-    }
+//    fun updateSelectedDate(offset: Int) {
+//        val calendar = Calendar.getInstance()
+//        calendar.time = _selectedDate.value
+//        calendar.add(Calendar.DATE, offset)
+//        _selectedDate.value = calendar.time
+//
+//
+//        fetchActivitiesForDate(_selectedDate.value)
+//    }
+//
+//    private fun fetchActivitiesForDate(date: Date) {
+//        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+//        val formattedDate = dateFormat.format(date)
+//
+//        viewModelScope.launch {
+//            val userId = currentUserId.value
+//            fetchActivities(token = token.value, id = userId, specificDate = formattedDate)
+//        }
+//    }
 
 
 
     fun fetchActivities(token: String, id: Int, specificDate: String? = null) {
-        Log.d("HomePageViewModel", "Fetching activities for: $specificDate")
         viewModelScope.launch {
             try {
                 val response = activityRepository.getUserActivities(token, id, specificDate)
@@ -184,12 +176,11 @@ class HomePageViewModel(
                     if (activities != null) {
                         _activityUserModel.value = activities.toMutableList()
                     } else {
-                        _activityUserModel.value = mutableListOf() // Empty list if no activities
+                        _activityUserModel.value = mutableListOf()
                     }
 
                 } else {
                     Log.e("HomePageViewModel", "Error: ${response.code()}")
-                    // Handle API error
                 }
             } catch (e: Exception) {
                 Log.e("HomePageViewModel", "Error fetching activities: ${e.message}")
@@ -206,7 +197,7 @@ class HomePageViewModel(
                 if (response.isSuccessful) {
                     val categoriesData = response.body()?.data
                     if (categoriesData != null) {
-                        _categories.value = GetAllCategoryResponse(categoriesData) // Update with fetched data
+                        _categories.value = GetAllCategoryResponse(categoriesData)
                     } else {
                         _categories.value = GetAllCategoryResponse(emptyList())
                     }
@@ -327,7 +318,6 @@ class HomePageViewModel(
                         }
 
                         override fun onFailure(p0: Call<ActivityRequest>, t: Throwable) {
-                            Log.e("CreateActivityViewModel", "API Failure: ${t.localizedMessage}")
                             _errorState.value = "Network Error: ${t.message}"
                             continuation.resumeWithException(t)
                         }
@@ -340,8 +330,6 @@ class HomePageViewModel(
 
                 if (response.isSuccessful) {
                     _createActivityResponse.value = response.body()
-
-                    // Navigate to the Home screen or Login page upon successful registration
                     togglePopup()
                 } else {
                     _errorState.value = "Error: ${response.code()}"
@@ -367,7 +355,6 @@ class HomePageViewModel(
                 )
             }
         }
-
     }
 }
 

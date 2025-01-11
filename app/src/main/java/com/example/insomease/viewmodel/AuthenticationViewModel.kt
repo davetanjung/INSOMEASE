@@ -29,7 +29,6 @@ class AuthenticationViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    // State variables to observe
     var emailInput by mutableStateOf("")
         private set
     var passwordInput by mutableStateOf("")
@@ -76,7 +75,6 @@ class AuthenticationViewModel(
         isConfirmPasswordVisible = !isConfirmPasswordVisible
     }
 
-    // Validation
     private fun validateLoginForm() {
         isButtonEnabled = emailInput.isNotEmpty() && passwordInput.isNotEmpty()
     }
@@ -93,7 +91,7 @@ class AuthenticationViewModel(
         viewModelScope.launch {
             try {
                 val call = authenticationRepository.login(emailInput, passwordInput)
-                // Await result from Call
+
                 val response = suspendCancellableCoroutine<Response<UserResponse>> { continuation ->
                     call.enqueue(object : Callback<UserResponse> {
                         override fun onResponse(
@@ -136,8 +134,8 @@ class AuthenticationViewModel(
         viewModelScope.launch {
             try {
                 val call = authenticationRepository.register(name, email, password)
-                // Await result from Call
-                val response = suspendCancellableCoroutine<Response<UserResponse>> { continuation ->
+
+                val response = suspendCancellableCoroutine { continuation ->
                     call.enqueue(object : Callback<UserResponse> {
                         override fun onResponse(
                             call: Call<UserResponse>,
@@ -160,7 +158,7 @@ class AuthenticationViewModel(
                     val userData = response.body()
                     userRepository.saveUserToken(userData?.data?.token.orEmpty())
                     userRepository.saveUsername(userData?.data?.username.orEmpty())
-                    // Navigate to the Home screen or Login page upon successful registration
+
                     navController?.navigate(listScreen.LoginScreen.name)
                 } else {
                     errorMessage = response.message()

@@ -61,7 +61,7 @@ fun AppRouting(
             composable(route = listScreen.SplashScreen.name) {
                 SplashScreen(onSplashFinish = {
                     NavController.navigate(listScreen.OnBoardingScreen.name) {
-                        popUpTo(listScreen.SplashScreen.name) { inclusive = true } // Clear the back stack to prevent going back to Splash
+                        popUpTo(listScreen.SplashScreen.name) { inclusive = true }
                     }
                 })
             }
@@ -171,7 +171,7 @@ fun AppRouting(
                     navController = NavController,
                     userId = userId,
                     activityId = activityId,
-                    activity = ActivityUserModel(),  // You can fetch the activity data based on activityId if necessary
+                    activity = ActivityUserModel(),
                     homePageViewModel
                 )
             }

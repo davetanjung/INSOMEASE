@@ -75,7 +75,6 @@ fun HomePage(
     val token by homePageViewModel.token.collectAsState()
     val showPopup = homePageViewModel.showPopUp
     val showNextPopUp = homePageViewModel.showNextPopUp
-    val currentUserId by homePageViewModel.currentUserId.collectAsState()
 
     LaunchedEffect(Unit) {
         homePageViewModel.fetchActivities(token, userId)
