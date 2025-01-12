@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,6 +36,13 @@ fun BottomNavigationBar(
     navController: NavController? = null,
     homePageViewModel: HomePageViewModel = viewModel()
 ) {
+
+    LaunchedEffect(Unit) {
+        homePageViewModel.getUserId()
+    }
+
+    val userId = homePageViewModel.currentUserId.collectAsState().value
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -45,7 +54,7 @@ fun BottomNavigationBar(
             label = "Home",
             iconResId = if (currentScreen == "home") R.drawable.house_selected else R.drawable.house,
             onClick = {
-                navController?.navigate(listScreen.HomeScreen.name + "/${homePageViewModel.currentUserId}")
+                navController?.navigate("${listScreen.HomeScreen.name}/$userId")
             }
         )
 
