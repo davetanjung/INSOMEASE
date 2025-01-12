@@ -21,18 +21,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.insomease.R
-import com.example.insomease.view.sleeptracker.SleepNoteScreen
+import com.example.insomease.route.listScreen
+import com.example.insomease.viewModels.HomePageViewModel
 
 @Composable
 fun BottomNavigationBar(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     currentScreen: String,
-    navController: NavController
+    navController: NavController? = null,
+    homePageViewModel: HomePageViewModel = viewModel()
 ) {
 
     LaunchedEffect(Unit) {
