@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.insomease.R
 import com.example.insomease.models.ActivityUserModel
 import com.example.insomease.route.listScreen
@@ -130,12 +131,11 @@ fun HomePage(
                     }
                 }
             }
-                BottomNavigationBar(
-                    modifier = Modifier,
-                    currentScreen = "home",
-                    homePageViewModel = homePageViewModel,
-                    navController = navController
-                )
+            BottomNavigationBar(
+                modifier = Modifier,
+                currentScreen = "home",
+                navController = rememberNavController()
+            )
         }
 
         // Show Popup if state is true

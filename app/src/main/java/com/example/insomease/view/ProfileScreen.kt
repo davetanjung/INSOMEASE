@@ -28,7 +28,7 @@ fun ProfileScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0C1631))
+            .background(Color(0xFF030F25))
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -215,7 +215,7 @@ fun StatisticCard(title: String, value: String, reference: String) {
     Column(
         modifier = Modifier
             .width(100.dp)
-            .background(Color(0xFF0C1631), RoundedCornerShape(8.dp))
+            .background(Color(0xFF030F25), RoundedCornerShape(8.dp))
             .border(
                 width = 2.dp,
                 color = Color(0xFFACACE7),

@@ -3,37 +3,31 @@ package com.example.insomease.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.example.insomease.models.WakeUpTimeModel
-import com.example.insomease.repositories.AlarmRepository
-import com.example.insomease.repositories.WakeUpTimeRepository
+import com.example.insomease.data.UserPreferencesRepository
 import com.example.insomease.route.listScreen
-import com.example.insomease.view.sleeptracker.WakeUpTimeScreen
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class WakeUpTimeViewModel(
-    private val wakeUpTimeRepository: WakeUpTimeRepository,
-    private val alarmRepository: AlarmRepository // Parameter tambahan
+    private val preferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
-    val wakeUpTime: StateFlow<WakeUpTimeModel> = wakeUpTimeRepository.getWakeUpTime()
+    val wakeUpTime: StateFlow<String> = preferencesRepository.wakeUpTime
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = "00:00"
+        )
 
     fun setWakeUpTime(newTime: String) {
-        wakeUpTimeRepository.setWakeUpTime(newTime)
-        alarmRepository.setAlarmTime(newTime) // Sinkronkan ke AlarmRepository
-    }
-
-    fun wakeUpScreen(navController: NavController){
-        viewModelScope.launch{
-            navController.navigate(listScreen.HomeScreen.name)
+        viewModelScope.launch {
+            preferencesRepository.saveWakeUpTime(newTime)
         }
-
     }
 
-    fun isAlarmSaved(): Boolean {
-        return wakeUpTimeRepository.isAlarmSaved()
+    fun navigateToHome(navController: NavController) {
+        navController.navigate(listScreen.HomeScreen.name)
     }
-
-
-
 }

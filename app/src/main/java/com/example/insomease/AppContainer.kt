@@ -11,7 +11,6 @@ import com.example.insomease.repositories.CategoryRepository
 import com.example.insomease.repositories.NetworkActivityRepository
 import com.example.insomease.repositories.NetworkAuthenticationRepository
 import com.example.insomease.repositories.NetworkCategoryRepository
-import com.example.insomease.repositories.NetworkSleepNoteRepository
 import com.example.insomease.repositories.NetworkUserRepository
 import com.example.insomease.repositories.SleepNoteRepository
 import com.example.insomease.repositories.UserRepository
@@ -22,7 +21,6 @@ import com.example.insomease.services.ActivityAPIService
 //import com.example.todolistapp.repositories.UserRepository
 import com.example.insomease.services.AuthenticationAPIService
 import com.example.insomease.services.CategoryService
-import com.example.insomease.services.SleepNoteAPI
 import com.example.insomease.services.UserAPIService
 //import com.example.todolistapp.services.TodoAPIService
 //import com.example.todolistapp.services.UserAPIService
@@ -39,17 +37,13 @@ interface AppContainer {
     val userRepository: UserRepository
     val activityRepository: ActivityRepository
     val categoryRepository: CategoryRepository
-    val sleepNoteRepository: SleepNoteRepository
-
 }
 
 class DefaultAppContainer(
     private val userDataStore: DataStore<Preferences>
 ): AppContainer {
     // change it to your own local ip please
-
-    private val baseUrl = "http://192.168.0.106:3000/"
-
+    private val baseUrl = "http://172.20.10.4:3000/"
     // RETROFIT SERVICE
     // delay object creation until needed using lazy
     private val authenticationRetrofitService: AuthenticationAPIService by lazy {
@@ -57,12 +51,6 @@ class DefaultAppContainer(
 
         retrofit.create(AuthenticationAPIService::class.java)
     }
-
-    private val sleepNoteAPIService: SleepNoteAPI by lazy {
-        val retrofit = initRetrofit()
-        retrofit.create(SleepNoteAPI::class.java)
-    }
-
 
     private val userAPIService: UserAPIService by lazy {
         val retrofit = initRetrofit()
@@ -94,10 +82,6 @@ class DefaultAppContainer(
 
     override val activityRepository: ActivityRepository by lazy {
         NetworkActivityRepository(activityAPIService)
-    }
-
-    override val sleepNoteRepository: SleepNoteRepository by lazy {
-        NetworkSleepNoteRepository(sleepNoteAPIService)
     }
 
     override val categoryRepository: CategoryRepository by lazy {

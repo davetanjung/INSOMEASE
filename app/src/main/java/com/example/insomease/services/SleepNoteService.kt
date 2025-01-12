@@ -1,29 +1,16 @@
-package com.example.insomease.service
+package com.example.insomease.services
 
+import com.example.insomease.models.ResponseModel
 import com.example.insomease.models.SleepNoteModel
-import com.example.insomease.repositories.SleepNoteRepository
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Path
 
-class SleepNoteService(private val repository: SleepNoteRepository) {
+interface SleepNoteService {
+    @GET("api/sleepNote/{userId}")
+    suspend fun getAllSleepNoteById(@Path("userId") userId: Int): ResponseModel<List<SleepNoteModel>>
 
-    // Mengambil semua catatan tidur
-    suspend fun getAllNotes(): List<SleepNoteModel> {
-        val responses = repository.getAllSleepNotes() // Mengambil List<SleepNoteResponse>
-        return responses.map { response ->
-            // Konversi dari SleepNoteResponse ke SleepNoteModel
-            SleepNoteModel(
-                id = response.id,
-                date = response.date,
-                bedTime = response.bedTime,
-                wakeTime = response.wakeTime,
-                mood = response.mood,
-                sleepHours = response.sleepHours
-            )
-        }
-    }
-
-    // Menambahkan catatan tidur baru
-    suspend fun addNote(note: SleepNoteModel): Boolean {
-        val response = repository.saveSleepNote(note) // Mengembalikan SleepNoteResponse?
-        return response != null // Mengembalikan true jika berhasil menyimpan
-    }
+    @POST("api/sleepNote")
+    suspend fun createSleepNote(@Body sleepNote: SleepNoteModel): ResponseModel<String>
 }

@@ -1,5 +1,7 @@
 package com.example.insomease.route
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -13,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.insomease.data.UserPreferencesRepository
 import com.example.insomease.models.ActivityUserModel
 import com.example.insomease.view.home.HomePage
 import com.example.insomease.view.authentication.LoginScreenView
@@ -23,9 +26,17 @@ import com.example.insomease.view.sleeptracker.WakeUpTimeScreen
 import com.example.insomease.view.authentication.RegisterScreenView
 import com.example.insomease.view.SplashScreen
 import com.example.insomease.view.home.ActivityDetailCard
+import com.example.insomease.view.sleeptracker.AlarmScreen
+import com.example.insomease.view.sleeptracker.SleepNoteScreen
 import com.example.insomease.viewModels.AuthenticationViewModel
 import com.example.insomease.viewModels.HomePageViewModel
+import com.example.insomease.viewmodel.AlarmViewModel
+import com.example.insomease.viewmodel.AlarmViewModelFactory
+import com.example.insomease.viewmodel.SleepNoteViewModel
+import com.example.insomease.viewmodel.SleepNoteViewModelFactory
 import com.example.insomease.viewmodel.WakeUpTimeViewModel
+import com.example.insomease.viewmodel.WakeUpTimeViewModelFactory
+
 //import com.example.insomease.viewmodel.WakeUpTimeViewModelFactory
 
 
@@ -38,17 +49,23 @@ enum class listScreen(){
     SignUpScreen,
     HomeScreen,
     ActivityDetailScreen,
-    WakeUpTimeScreen
-
+    WakeUpTimeScreen,
+    SleepNoteScreen,
+    AlarmScreen
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppRouting(
     authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
     homePageViewModel: HomePageViewModel = viewModel(factory = HomePageViewModel.Factory),
-//    WakeUpTimeViewModel: WakeUpTimeViewModel = viewModel(factory = WakeUpTimeViewModel.Factory)
-){
+    userPreferencesRepository: UserPreferencesRepository,
+    wakeUpTimeViewModel: WakeUpTimeViewModel = viewModel(factory = WakeUpTimeViewModelFactory(userPreferencesRepository)),
+    sleepNoteViewModel: SleepNoteViewModel = viewModel(factory = SleepNoteViewModelFactory(userPreferencesRepository)),
+    alarmViewModel: AlarmViewModel = viewModel(factory = AlarmViewModelFactory(userPreferencesRepository))
 
+
+){
     val NavController = rememberNavController()
 
     Scaffold { innerPadding ->
@@ -199,6 +216,28 @@ fun AppRouting(
             }
 
             composable(
+                route = listScreen.SleepNoteScreen.name,
+                enterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> fullWidth }, // Starts from the right
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                },
+                exitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -fullWidth }, // Exits to the left
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                },
+            ) {
+                SleepNoteScreen(
+                    navController = NavController,
+                    sleepNoteViewModel = sleepNoteViewModel,
+                    homePageViewModel = homePageViewModel
+                )
+            }
+
+            composable(
                 route = listScreen.WakeUpTimeScreen.name,
                 enterTransition = {
                     slideInHorizontally(
@@ -214,10 +253,32 @@ fun AppRouting(
                 },
             ) {
                 WakeUpTimeScreen(
-                    navController = NavController
+                    navController = NavController,
+                    viewModel = wakeUpTimeViewModel
                 )
             }
 
+            composable(
+                route = listScreen.AlarmScreen.name,
+                enterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> fullWidth }, // Starts from the right
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                },
+                exitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -fullWidth }, // Exits to the left
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                },
+            ) {
+                AlarmScreen(
+                    navController = NavController,
+                    viewModel = alarmViewModel,
+                    homePageViewModel = homePageViewModel
+                )
+            }
 
 
 

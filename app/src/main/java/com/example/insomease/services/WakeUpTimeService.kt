@@ -7,7 +7,6 @@ class WakeUpTimeService {
         return "06:00"  // Mengembalikan waktu default yang valid
     }
 
-
     // Fungsi untuk memvalidasi waktu bangun yang dipilih
     fun validateWakeUpTime(selectedTime: String): Boolean {
         // Contoh validasi sederhana
