@@ -62,7 +62,7 @@ fun BottomNavigationBar(
             label = "Sleep",
             iconResId = if (currentScreen == "sleep") R.drawable.bed else R.drawable.sleep,
             onClick = {
-                navController?.navigate(listScreen.WakeUpTimeScreen.name)
+                navController?.navigate(listScreen.SleepNoteScreen.name)
             }
         )
 

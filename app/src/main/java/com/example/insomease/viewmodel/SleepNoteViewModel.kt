@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 class SleepNoteViewModel(preferencesRepository: UserPreferencesRepository) : ViewModel() {
-    private val repository = SleepNoteRepository()
+    private val repository = SleepNoteRepository(initRetrofit())
 
     private val _sleepNotes = MutableStateFlow<List<SleepNoteModel>>(emptyList())
     val sleepNotes = _sleepNotes
