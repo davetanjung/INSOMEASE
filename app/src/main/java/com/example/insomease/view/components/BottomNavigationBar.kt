@@ -33,7 +33,7 @@ import com.example.insomease.viewModels.HomePageViewModel
 fun BottomNavigationBar(
     modifier: Modifier = Modifier,
     currentScreen: String,
-    navController: NavController? = null,
+    navController: NavController,
     homePageViewModel: HomePageViewModel = viewModel()
 ) {
 
@@ -54,7 +54,7 @@ fun BottomNavigationBar(
             label = "Home",
             iconResId = if (currentScreen == "home") R.drawable.house_selected else R.drawable.house,
             onClick = {
-                navController?.navigate("${listScreen.HomeScreen.name}/$userId")
+                navController.navigate("${listScreen.HomeScreen.name}/$userId")
             }
         )
 
@@ -62,7 +62,7 @@ fun BottomNavigationBar(
             label = "Sleep",
             iconResId = if (currentScreen == "sleep") R.drawable.bed else R.drawable.sleep,
             onClick = {
-                navController?.navigate(listScreen.SleepNoteScreen.name)
+                navController.navigate(listScreen.SleepNoteScreen.name)
             }
         )
 

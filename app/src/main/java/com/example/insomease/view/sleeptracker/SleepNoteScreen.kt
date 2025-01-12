@@ -50,6 +50,7 @@ import androidx.navigation.NavController
 import com.example.insomease.R
 import com.example.insomease.models.SleepNoteModel
 import com.example.insomease.route.listScreen
+import com.example.insomease.view.components.BottomNavigationBar
 import com.example.insomease.viewModels.HomePageViewModel
 import com.example.insomease.viewmodel.SleepNoteViewModel
 import java.time.LocalDateTime
@@ -164,6 +165,16 @@ fun SleepNoteScreen(
                     )
                 }
             }
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+
+        if (navController != null) {
+            BottomNavigationBar(
+                modifier = Modifier,
+                currentScreen = "home",
+                navController = navController,
+                homePageViewModel
+            )
         }
     }
 }

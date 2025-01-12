@@ -1,10 +1,6 @@
 package com.example.insomease.models
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.google.gson.annotations.SerializedName
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 // Response when retrieving multiple activities
 data class GetAllActivityResponse(
@@ -68,21 +64,6 @@ fun calculateEndPercentage(endTime: String, startTime: String): Float {
     val endMinutes = convertTimeToMinutes(endTime)
     val startMinutes = convertTimeToMinutes(startTime)
     return ((endMinutes - startMinutes).toFloat() / totalMinutes) * 100 // Duration percentage
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun parseTime(timeString: String): String {
-    return try {
-        // Parse the time from ISO 8601 format and convert it to HH:mm format
-        val formatter = DateTimeFormatter.ISO_DATE_TIME
-        val dateTime = LocalDateTime.parse(timeString, formatter)
-
-        // Format it as HH:mm
-        val formattedTime = dateTime.format(DateTimeFormatter.ofPattern("HH:mm"))
-        formattedTime
-    } catch (e: Exception) {
-        "Invalid Time" // In case the parsing fails
-    }
 }
 
 

@@ -12,16 +12,22 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.insomease.LunaireApplication
-import com.example.insomease.data.UserPreferencesRepository
 import com.example.insomease.models.SleepNoteModel
 import com.example.insomease.repositories.SleepNoteRepository
 import com.example.insomease.viewModels.AuthenticationViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import java.time.Duration
 import java.time.LocalDateTime
 
-class SleepNoteViewModel(preferencesRepository: UserPreferencesRepository) : ViewModel() {
-    private val repository = SleepNoteRepository(initRetrofit())
+class SleepNoteViewModel(
+    private val retrofit: Retrofit
+) : ViewModel() {
+
+    private val repository = SleepNoteRepository(
+        retrofit = retrofit
+    )
 
     private val _sleepNotes = MutableStateFlow<List<SleepNoteModel>>(emptyList())
     val sleepNotes = _sleepNotes
@@ -70,7 +76,7 @@ class SleepNoteViewModel(preferencesRepository: UserPreferencesRepository) : Vie
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun calculateSleepHours(bedTime: LocalDateTime, wakeTime: LocalDateTime): Float {
-        val duration = java.time.Duration.between(bedTime, wakeTime)
+        val duration = Duration.between(bedTime, wakeTime)
         return duration.toMinutes() / 60.0f
     }
 

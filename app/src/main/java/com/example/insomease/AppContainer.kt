@@ -1,10 +1,7 @@
 package com.example.insomease
 
-import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import com.example.insomease.repositories.ActivityRepository
 import com.example.insomease.repositories.AuthenticationRepository
 import com.example.insomease.repositories.CategoryRepository
@@ -37,13 +34,16 @@ interface AppContainer {
     val userRepository: UserRepository
     val activityRepository: ActivityRepository
     val categoryRepository: CategoryRepository
+
+    fun provideSleepNoteRepository(): SleepNoteRepository
+    fun getRetrofit(): Retrofit
 }
 
 class DefaultAppContainer(
     private val userDataStore: DataStore<Preferences>
 ): AppContainer {
     // change it to your own local ip please
-    private val baseUrl = "http://172.20.10.4:3000/"
+    private val baseUrl = "http://192.168.0.106:3000/"
     // RETROFIT SERVICE
     // delay object creation until needed using lazy
     private val authenticationRetrofitService: AuthenticationAPIService by lazy {
@@ -87,6 +87,12 @@ class DefaultAppContainer(
     override val categoryRepository: CategoryRepository by lazy {
         NetworkCategoryRepository(categoryService)
     }
+
+    override fun provideSleepNoteRepository(): SleepNoteRepository {
+        return SleepNoteRepository(initRetrofit())
+    }
+
+    override fun getRetrofit(): Retrofit = initRetrofit()
 
     private fun initRetrofit(): Retrofit {
         val logging = HttpLoggingInterceptor()

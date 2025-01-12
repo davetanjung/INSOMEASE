@@ -15,6 +15,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
+import com.example.insomease.AppContainer
+import com.example.insomease.DefaultAppContainer
 import com.example.insomease.data.UserPreferencesRepository
 import com.example.insomease.models.ActivityUserModel
 import com.example.insomease.view.home.HomePage
@@ -57,14 +60,16 @@ enum class listScreen(){
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppRouting(
+    appContainer: AppContainer,
     authenticationViewModel: AuthenticationViewModel = viewModel(factory = AuthenticationViewModel.Factory),
     homePageViewModel: HomePageViewModel = viewModel(factory = HomePageViewModel.Factory),
     userPreferencesRepository: UserPreferencesRepository,
     wakeUpTimeViewModel: WakeUpTimeViewModel = viewModel(factory = WakeUpTimeViewModelFactory(userPreferencesRepository)),
-    sleepNoteViewModel: SleepNoteViewModel = viewModel(factory = SleepNoteViewModelFactory(userPreferencesRepository)),
-    alarmViewModel: AlarmViewModel = viewModel(factory = AlarmViewModelFactory(userPreferencesRepository))
-
-
+    sleepNoteViewModel: SleepNoteViewModel = viewModel(factory = SleepNoteViewModelFactory(
+        userPreferencesRepository,
+        retrofit = appContainer.getRetrofit()
+    )),
+    alarmViewModel: AlarmViewModel = viewModel(factory = AlarmViewModelFactory(userPreferencesRepository)),
 ){
     val NavController = rememberNavController()
 
@@ -233,7 +238,7 @@ fun AppRouting(
                 SleepNoteScreen(
                     navController = NavController,
                     sleepNoteViewModel = sleepNoteViewModel,
-                    homePageViewModel = homePageViewModel
+                    homePageViewModel = homePageViewModel,
                 )
             }
 
