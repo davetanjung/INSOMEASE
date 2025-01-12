@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.insomease.R
+import com.example.insomease.route.listScreen
 import com.example.insomease.viewmodel.WakeUpTimeViewModel
 
 @Composable
@@ -98,10 +99,7 @@ fun WakeUpTimeScreen(
                 onClick = {
                     // Save wake up time and navigate to alarm screen
                     viewModel.setWakeUpTime(wakeUpTime)
-                    navController?.navigate("alarm_screen") {
-                        // Optional: Pop up to start destination to avoid back stack accumulation
-                        popUpTo("wake_up_time_screen") { inclusive = true }
-                    }
+                    navController?.navigate(listScreen.AlarmScreen.name)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388)),
                 modifier = Modifier

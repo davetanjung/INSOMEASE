@@ -46,8 +46,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.insomease.R
 import com.example.insomease.models.SleepNoteModel
+import com.example.insomease.route.listScreen
+import com.example.insomease.viewModels.HomePageViewModel
 import com.example.insomease.viewmodel.SleepNoteViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -56,9 +59,9 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SleepNoteScreen(
-    notes: List<SleepNoteModel>,
-    onSaveSuccess: () -> Unit,
-    sleepNoteViewModel: SleepNoteViewModel
+    sleepNoteViewModel: SleepNoteViewModel,
+    navController: NavController? = null,
+    homePageViewModel: HomePageViewModel
 ) {
     val context = LocalContext.current
     var entryDate by remember { mutableStateOf(LocalDateTime.now()) }
@@ -68,6 +71,12 @@ fun SleepNoteScreen(
     var isSaved by remember { mutableStateOf(false) }
 
     val notes by sleepNoteViewModel.sleepNotes.collectAsState()
+
+    LaunchedEffect(Unit) {
+        homePageViewModel.getUserId()
+    }
+
+    val userId = homePageViewModel.currentUserId.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -126,7 +135,7 @@ fun SleepNoteScreen(
                             bedTime = bedTime,
                             wakeTime = wakeTime,
                             mood = mood,
-                            userId = 1,
+                            userId = userId,
                             context = context
                         )
                         isSaved = true // Update state to show "Next" button
@@ -142,7 +151,9 @@ fun SleepNoteScreen(
                 }
             } else {
                 Button(
-                    onClick = { onSaveSuccess() },
+                    onClick = {
+                        navController?.navigate(listScreen.WakeUpTimeScreen.name)
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388))
                 ) {

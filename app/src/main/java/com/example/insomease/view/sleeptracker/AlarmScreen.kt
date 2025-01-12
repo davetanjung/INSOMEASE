@@ -18,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -36,17 +37,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.insomease.R
+import com.example.insomease.route.listScreen
+import com.example.insomease.viewModels.HomePageViewModel
 import com.example.insomease.viewmodel.AlarmViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AlarmScreen(
-    viewModel: AlarmViewModel
+    navController: NavController,
+    viewModel: AlarmViewModel,
+    homePageViewModel: HomePageViewModel
 ) {
     val currentTime by viewModel.currentTime.collectAsState()
     val alarmTime by viewModel.alarmTime.collectAsState()
     val isAlarmTriggered by viewModel.isAlarmTriggered.collectAsState()
+
+    LaunchedEffect(Unit) {
+        homePageViewModel.getUserId()
+    }
+
+    val userId = homePageViewModel.currentUserId.collectAsState().value
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -124,7 +136,9 @@ fun AlarmScreen(
             Spacer(modifier = Modifier.height(90.dp))
 
             Button(
-                onClick = { /* Handle quit action */ },
+                onClick = {
+                    navController?.navigate("${listScreen.HomeScreen.name}/$userId")
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388)),
                 shape = RoundedCornerShape(30.dp),
                 modifier = Modifier

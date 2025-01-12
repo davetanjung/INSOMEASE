@@ -1,7 +1,6 @@
 package com.example.insomease.repositories
 
 import android.content.Context
-import com.example.insomease.AppClient
 import com.example.insomease.models.SleepNoteModel
 import com.example.insomease.services.SleepNoteService
 import kotlinx.coroutines.Dispatchers
