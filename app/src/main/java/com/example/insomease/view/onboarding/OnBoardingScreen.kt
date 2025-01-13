@@ -68,7 +68,7 @@ fun OnBoardingScreen(
                 contentScale = ContentScale.Crop
             )
             Text(
-                text = "Manage Your Sleep Proactively",
+                text = "Welcome to Lunaire",
                 color = Color.White,
                 fontFamily = FontFamily(Font(R.font.poppins)),
                 fontSize = 22.sp,
@@ -77,8 +77,7 @@ fun OnBoardingScreen(
                 modifier = Modifier.padding(vertical = 30.dp)
             )
             Text(
-                text = "Track Your Sleep Levels and Discover \n" +
-                        "Effective Solutions",
+                text = "Your journey to better sleep starts here",
                 color = Color.White,
                 fontFamily = FontFamily(Font(R.font.poppins)),
                 fontSize = 18.sp,
@@ -152,7 +151,7 @@ fun OnBoardingScreen_2(
                 contentScale = ContentScale.Crop
             )
             Text(
-                text = "Manage Your Sleep Proactively",
+                text = "Track and Analyze Your Sleep",
                 color = Color.White,
                 fontFamily = FontFamily(Font(R.font.poppins)),
                 fontSize = 22.sp,
@@ -161,8 +160,8 @@ fun OnBoardingScreen_2(
                 modifier = Modifier.padding(vertical = 30.dp)
             )
             Text(
-                text = "Track Your Sleep Levels and Discover \n" +
-                        "Effective Solutions",
+                text = "Monitor your sleep patterns and \n" +
+                        " gain meaningful insights into your habits to improve your nightly rest.",
                 color = Color.White,
                 fontFamily = FontFamily(Font(R.font.poppins)),
                 fontSize = 18.sp,
