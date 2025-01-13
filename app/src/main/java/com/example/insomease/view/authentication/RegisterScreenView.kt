@@ -1,7 +1,6 @@
 package com.example.insomease.view.authentication
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -86,17 +84,11 @@ fun RegisterScreenView(
                 modifier = Modifier
                     .padding(top = 8.dp, bottom = 12.dp)
                     .fillMaxWidth()
-                    .height(54.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Color(0xFFAAAAE5),
-                        shape = RoundedCornerShape(25.dp)
-                    ),
+                    .height(54.dp),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White
-                ),
-                shape = RoundedCornerShape(25.dp),
+                    focusedContainerColor = Color.White,
+                )
             )
 
             Text(
@@ -115,17 +107,11 @@ fun RegisterScreenView(
                 modifier = Modifier
                     .padding(top = 8.dp, bottom = 12.dp)
                     .fillMaxWidth()
-                    .height(54.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Color(0xFFAAAAE5),
-                        shape = RoundedCornerShape(25.dp)
-                    ),
+                    .height(54.dp),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White
-                ),
-                shape = RoundedCornerShape(25.dp),
+                    focusedContainerColor = Color.White,
+                )
             )
 
             Text(
@@ -161,17 +147,11 @@ fun RegisterScreenView(
                 modifier = Modifier
                     .padding(top = 8.dp, bottom = 12.dp)
                     .fillMaxWidth()
-                    .height(54.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Color(0xFFAAAAE5),
-                        shape = RoundedCornerShape(25.dp)
-                    ),
+                    .height(54.dp),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White
-                ),
-                shape = RoundedCornerShape(25.dp),
+                    focusedContainerColor = Color.White,
+                )
             )
 
             Text(
@@ -207,17 +187,11 @@ fun RegisterScreenView(
                 modifier = Modifier
                     .padding(top = 8.dp, bottom = 12.dp)
                     .fillMaxWidth()
-                    .height(54.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Color(0xFFAAAAE5),
-                        shape = RoundedCornerShape(25.dp)
-                    ),
+                    .height(54.dp),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White
-                ),
-                shape = RoundedCornerShape(25.dp),
+                    focusedContainerColor = Color.White,
+                )
             )
 
             Button(
@@ -234,14 +208,13 @@ fun RegisterScreenView(
                 enabled = authenticationViewModel.isButtonEnabled,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF514388)),
                 modifier = Modifier
-                    .padding(vertical = 30.dp, horizontal = 40.dp)
+                    .padding(vertical = 30.dp)
             ) {
                 Text(
                     text = "Sign Up",
                     color = Color.White,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
             }
